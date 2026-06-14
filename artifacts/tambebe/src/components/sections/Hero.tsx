@@ -7,8 +7,8 @@ export function Hero() {
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center pt-20 overflow-hidden">
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-background/80 md:bg-background/40 z-10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10" />
+        <div className="absolute inset-0 bg-white/70 md:bg-white/30 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent z-10" />
         <img 
           src={heroImg} 
           alt="Modern stroller in a sunlit beautiful clean living room" 
