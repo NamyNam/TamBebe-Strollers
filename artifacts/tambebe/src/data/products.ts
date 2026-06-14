@@ -8,8 +8,8 @@ export interface ProductVariant {
   id: string;
   color: string;
   colorHex: string;
-  year: string;
   condition: ConditionGrade;
+  year: string;
   price: string;
   priceNum: number;
   stock: number;
@@ -47,50 +47,13 @@ export const products: Product[] = [
     seatPositions: "Forward & parent-facing, full recline",
     maxChildWeight: "22 kg",
     variants: [
-      {
-        id: "bugaboo-fox-3-midnight-black",
-        color: "Midnight Black / Aluminum",
-        colorHex: "#1c1c1e",
-        year: "2022",
-        condition: "Barely Used",
-        price: "€450",
-        priceNum: 450,
-        stock: 1,
-        image: stroller1,
-      },
-      {
-        id: "bugaboo-fox-3-forest-green",
-        color: "Forest Green / Aluminum",
-        colorHex: "#2d5a3d",
-        year: "2022",
-        condition: "Gently Used",
-        price: "€380",
-        priceNum: 380,
-        stock: 1,
-        image: stroller1,
-      },
-      {
-        id: "bugaboo-fox-3-sand-beige",
-        color: "Sand Beige / Aluminum",
-        colorHex: "#c4a882",
-        year: "2021",
-        condition: "Open Box",
-        price: "€420",
-        priceNum: 420,
-        stock: 0,
-        image: stroller1,
-      },
-      {
-        id: "bugaboo-fox-3-white-aluminum",
-        color: "White / Aluminum",
-        colorHex: "#f0efed",
-        year: "2023",
-        condition: "Unopened",
-        price: "€560",
-        priceNum: 560,
-        stock: 1,
-        image: stroller1,
-      },
+      { id: "bugaboo-fox-3-midnight-black-unopened",   color: "Midnight Black / Aluminum", colorHex: "#1c1c1e", condition: "Unopened",    year: "2023", price: "€560", priceNum: 560, stock: 1, image: stroller1 },
+      { id: "bugaboo-fox-3-midnight-black-barely",     color: "Midnight Black / Aluminum", colorHex: "#1c1c1e", condition: "Barely Used", year: "2022", price: "€450", priceNum: 450, stock: 1, image: stroller1 },
+      { id: "bugaboo-fox-3-midnight-black-gently",     color: "Midnight Black / Aluminum", colorHex: "#1c1c1e", condition: "Gently Used", year: "2021", price: "€380", priceNum: 380, stock: 0, image: stroller1 },
+      { id: "bugaboo-fox-3-forest-green-open-box",     color: "Forest Green / Aluminum",   colorHex: "#2d5a3d", condition: "Open Box",    year: "2022", price: "€410", priceNum: 410, stock: 1, image: stroller1 },
+      { id: "bugaboo-fox-3-forest-green-gently",       color: "Forest Green / Aluminum",   colorHex: "#2d5a3d", condition: "Gently Used", year: "2021", price: "€360", priceNum: 360, stock: 1, image: stroller1 },
+      { id: "bugaboo-fox-3-sand-beige-barely",         color: "Sand Beige / Aluminum",     colorHex: "#c4a882", condition: "Barely Used", year: "2022", price: "€440", priceNum: 440, stock: 0, image: stroller1 },
+      { id: "bugaboo-fox-3-sand-beige-open-box",       color: "Sand Beige / Aluminum",     colorHex: "#c4a882", condition: "Open Box",    year: "2022", price: "€400", priceNum: 400, stock: 1, image: stroller1 },
     ],
     renewalChecks: [
       "Full steam-clean of all fabric components",
@@ -102,20 +65,8 @@ export const products: Product[] = [
       "Handle height adjustment test",
       "All-terrain wheel function confirmed",
     ],
-    included: [
-      "Main seat unit",
-      "Carrycot (bassinet)",
-      "Aluminum chassis",
-      "Sun canopy",
-      "Rain cover",
-      "Original manual",
-    ],
-    highlights: [
-      "All-terrain performance",
-      "Full-recline carrycot included",
-      "Lightweight aluminum frame",
-      "One-handed fold",
-    ],
+    included: ["Main seat unit", "Carrycot (bassinet)", "Aluminum chassis", "Sun canopy", "Rain cover", "Original manual"],
+    highlights: ["All-terrain performance", "Full-recline carrycot included", "Lightweight aluminum frame", "One-handed fold"],
   },
   {
     id: 2,
@@ -130,50 +81,12 @@ export const products: Product[] = [
     seatPositions: "Forward & parent-facing, multiple recline",
     maxChildWeight: "22.7 kg",
     variants: [
-      {
-        id: "uppababy-vista-v2-greyson",
-        color: "Greyson (Charcoal Melange)",
-        colorHex: "#6b6b6b",
-        year: "2021",
-        condition: "Gently Used",
-        price: "€480",
-        priceNum: 480,
-        stock: 1,
-        image: stroller2,
-      },
-      {
-        id: "uppababy-vista-v2-bryce",
-        color: "Bryce (Blue Melange)",
-        colorHex: "#4a7ab5",
-        year: "2022",
-        condition: "Barely Used",
-        price: "€520",
-        priceNum: 520,
-        stock: 1,
-        image: stroller2,
-      },
-      {
-        id: "uppababy-vista-v2-henry",
-        color: "Henry (Warm Grey)",
-        colorHex: "#9e9a95",
-        year: "2021",
-        condition: "Open Box",
-        price: "€430",
-        priceNum: 430,
-        stock: 0,
-        image: stroller2,
-      },
-      {
-        id: "uppababy-vista-v2-jake",
-        color: "Jake (Black)",
-        colorHex: "#2a2a2a",
-        year: "2023",
-        condition: "Unopened",
-        price: "€590",
-        priceNum: 590,
-        stock: 1,
-        image: stroller2,
-      },
+      { id: "uppababy-vista-v2-greyson-barely",   color: "Greyson (Charcoal Melange)", colorHex: "#6b6b6b", condition: "Barely Used", year: "2022", price: "€520", priceNum: 520, stock: 1, image: stroller2 },
+      { id: "uppababy-vista-v2-greyson-gently",   color: "Greyson (Charcoal Melange)", colorHex: "#6b6b6b", condition: "Gently Used", year: "2021", price: "€480", priceNum: 480, stock: 1, image: stroller2 },
+      { id: "uppababy-vista-v2-bryce-open-box",   color: "Bryce (Blue Melange)",       colorHex: "#4a7ab5", condition: "Open Box",    year: "2022", price: "€490", priceNum: 490, stock: 1, image: stroller2 },
+      { id: "uppababy-vista-v2-bryce-barely",     color: "Bryce (Blue Melange)",       colorHex: "#4a7ab5", condition: "Barely Used", year: "2021", price: "€510", priceNum: 510, stock: 0, image: stroller2 },
+      { id: "uppababy-vista-v2-jake-unopened",    color: "Jake (Black)",               colorHex: "#2a2a2a", condition: "Unopened",    year: "2023", price: "€590", priceNum: 590, stock: 1, image: stroller2 },
+      { id: "uppababy-vista-v2-jake-open-box",    color: "Jake (Black)",               colorHex: "#2a2a2a", condition: "Open Box",    year: "2022", price: "€500", priceNum: 500, stock: 1, image: stroller2 },
     ],
     renewalChecks: [
       "Full steam-clean and fabric sanitization",
@@ -185,20 +98,8 @@ export const products: Product[] = [
       "Carrycot attachment system test",
       "Toddler seat install/release cycle (10x)",
     ],
-    included: [
-      "Toddler seat",
-      "MESA infant car seat adapter (compatible)",
-      "Rumble seat adapter ready",
-      "Full aluminum chassis",
-      "Bug shield",
-      "Rain shield",
-    ],
-    highlights: [
-      "Expandable for 2 children",
-      "Self-standing fold",
-      "Compatible with most infant car seats",
-      "Industry-leading canopy coverage",
-    ],
+    included: ["Toddler seat", "MESA infant car seat adapter (compatible)", "Rumble seat adapter ready", "Full aluminum chassis", "Bug shield", "Rain shield"],
+    highlights: ["Expandable for 2 children", "Self-standing fold", "Compatible with most infant car seats", "Industry-leading canopy coverage"],
   },
   {
     id: 3,
@@ -213,50 +114,12 @@ export const products: Product[] = [
     seatPositions: "Forward & parent-facing, full recline",
     maxChildWeight: "22 kg",
     variants: [
-      {
-        id: "nuna-mixx-next-hazelwood",
-        color: "Hazelwood (Warm Beige)",
-        colorHex: "#c4956a",
-        year: "2021",
-        condition: "Gently Used",
-        price: "€380",
-        priceNum: 380,
-        stock: 1,
-        image: stroller3,
-      },
-      {
-        id: "nuna-mixx-next-riveted",
-        color: "Riveted (Charcoal)",
-        colorHex: "#4b5563",
-        year: "2022",
-        condition: "Open Box",
-        price: "€350",
-        priceNum: 350,
-        stock: 1,
-        image: stroller3,
-      },
-      {
-        id: "nuna-mixx-next-ocean",
-        color: "Ocean (Teal Blue)",
-        colorHex: "#2563a8",
-        year: "2022",
-        condition: "Barely Used",
-        price: "€400",
-        priceNum: 400,
-        stock: 0,
-        image: stroller3,
-      },
-      {
-        id: "nuna-mixx-next-snow",
-        color: "Snow (Cream White)",
-        colorHex: "#f5f0e8",
-        year: "2023",
-        condition: "Unopened",
-        price: "€490",
-        priceNum: 490,
-        stock: 1,
-        image: stroller3,
-      },
+      { id: "nuna-mixx-next-hazelwood-barely",  color: "Hazelwood (Warm Beige)", colorHex: "#c4956a", condition: "Barely Used", year: "2022", price: "€400", priceNum: 400, stock: 1, image: stroller3 },
+      { id: "nuna-mixx-next-hazelwood-gently",  color: "Hazelwood (Warm Beige)", colorHex: "#c4956a", condition: "Gently Used", year: "2021", price: "€370", priceNum: 370, stock: 1, image: stroller3 },
+      { id: "nuna-mixx-next-riveted-open-box",  color: "Riveted (Charcoal)",     colorHex: "#4b5563", condition: "Open Box",    year: "2022", price: "€350", priceNum: 350, stock: 1, image: stroller3 },
+      { id: "nuna-mixx-next-riveted-barely",    color: "Riveted (Charcoal)",     colorHex: "#4b5563", condition: "Barely Used", year: "2022", price: "€390", priceNum: 390, stock: 0, image: stroller3 },
+      { id: "nuna-mixx-next-snow-unopened",     color: "Snow (Cream White)",     colorHex: "#f0ece4", condition: "Unopened",    year: "2023", price: "€490", priceNum: 490, stock: 1, image: stroller3 },
+      { id: "nuna-mixx-next-snow-open-box",     color: "Snow (Cream White)",     colorHex: "#f0ece4", condition: "Open Box",    year: "2022", price: "€440", priceNum: 440, stock: 0, image: stroller3 },
     ],
     renewalChecks: [
       "Steam-clean of seat pad, canopy, and carrycot",
@@ -268,20 +131,8 @@ export const products: Product[] = [
       "Parent-facing mode attachment cycle",
       "Canopy zip and magnetic peek-a-boo window test",
     ],
-    included: [
-      "Seat unit",
-      "Carrycot",
-      "Aluminum chassis",
-      "Extendable canopy",
-      "Rain cover",
-      "Magnetic peek-a-boo window",
-    ],
-    highlights: [
-      "Lightweight urban design",
-      "Magnetic peek-a-boo window",
-      "Car seat compatible",
-      "Compact city fold",
-    ],
+    included: ["Seat unit", "Carrycot", "Aluminum chassis", "Extendable canopy", "Rain cover", "Magnetic peek-a-boo window"],
+    highlights: ["Lightweight urban design", "Magnetic peek-a-boo window", "Car seat compatible", "Compact city fold"],
   },
 ];
 
@@ -293,42 +144,30 @@ export function getVariantById(product: Product, variantId: string): ProductVari
   return product.variants.find((v) => v.id === variantId) ?? product.variants[0];
 }
 
-export type FlatVariant = ProductVariant & {
-  product: Product;
-};
-
-export function getAllVariants(): FlatVariant[] {
-  return products.flatMap((p) =>
-    p.variants.map((v) => ({ ...v, product: p }))
-  );
+export function getUniqueColors(product: Product): { color: string; colorHex: string }[] {
+  const seen = new Set<string>();
+  return product.variants.reduce<{ color: string; colorHex: string }[]>((acc, v) => {
+    if (!seen.has(v.color)) {
+      seen.add(v.color);
+      acc.push({ color: v.color, colorHex: v.colorHex });
+    }
+    return acc;
+  }, []);
 }
 
-export const conditionMeta: Record<
-  ConditionGrade,
-  { label: string; color: string; bg: string; description: string }
-> = {
-  Unopened: {
-    label: "Unopened",
-    color: "#2563a8",
-    bg: "#eff6ff",
-    description: "Box sealed. Never assembled or used.",
-  },
-  "Open Box": {
-    label: "Open Box",
-    color: "#7c3aed",
-    bg: "#f5f3ff",
-    description: "Box opened, assembled briefly for inspection only.",
-  },
-  "Barely Used": {
-    label: "Barely Used",
-    color: "#0d7f5a",
-    bg: "#ecfdf5",
-    description: "Used a handful of times. Like new in every practical sense.",
-  },
-  "Gently Used": {
-    label: "Gently Used",
-    color: "#b45309",
-    bg: "#fffbeb",
-    description: "Normal use with minor cosmetic signs. Fully certified.",
-  },
+export function getVariantsForColor(product: Product, color: string): ProductVariant[] {
+  return product.variants.filter((v) => v.color === color);
+}
+
+export type FlatVariant = ProductVariant & { product: Product };
+
+export function getAllVariants(): FlatVariant[] {
+  return products.flatMap((p) => p.variants.map((v) => ({ ...v, product: p })));
+}
+
+export const conditionMeta: Record<ConditionGrade, { label: string; color: string; bg: string; description: string }> = {
+  Unopened:      { label: "Unopened",    color: "#2563a8", bg: "#eff6ff",  description: "Box sealed. Never assembled or used." },
+  "Open Box":    { label: "Open Box",    color: "#7c3aed", bg: "#f5f3ff",  description: "Box opened, assembled briefly for inspection only." },
+  "Barely Used": { label: "Barely Used", color: "#0d7f5a", bg: "#ecfdf5",  description: "Used a handful of times. Like new in every practical sense." },
+  "Gently Used": { label: "Gently Used", color: "#b45309", bg: "#fffbeb",  description: "Normal use with minor cosmetic signs. Fully certified." },
 };
