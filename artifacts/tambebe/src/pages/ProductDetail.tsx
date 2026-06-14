@@ -1,25 +1,27 @@
 import { useParams, Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowLeft, ShieldCheck, CheckCircle2, Package, ChevronRight } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, ShieldCheck, CheckCircle2, Package, ChevronRight, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getProductBySlug } from "@/data/products";
 import { Footer } from "@/components/sections/Footer";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 
-const conditionColor: Record<string, string> = {
-  "Like New": "bg-primary/10 text-primary border-primary/20",
-  "Excellent": "bg-secondary/10 text-secondary border-secondary/20",
-  "Very Good": "bg-primary/10 text-primary border-primary/20",
+const conditionStyle: Record<string, { bg: string; color: string }> = {
+  "Like New":  { bg: "#65a6db20", color: "#3d7fb5" },
+  "Excellent": { bg: "#f6ab7820", color: "#b8712a" },
+  "Very Good": { bg: "#f6ab7820", color: "#b8712a" },
 };
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const product = getProductBySlug(slug);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
-        <p className="text-xl font-semibold text-foreground">Stroller not found.</p>
+        <p className="text-xl font-black text-foreground">Stroller not found.</p>
         <Link href="/">
           <Button variant="outline">Back to home</Button>
         </Link>
@@ -27,45 +29,73 @@ export default function ProductDetail() {
     );
   }
 
+  const cs = conditionStyle[product.condition];
+
   return (
-    <div className="min-h-screen bg-background flex flex-col font-sans">
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-serif font-bold text-foreground tracking-tight">
-            TamBebe.
+    <div className="min-h-screen bg-background flex flex-col">
+      <header className="sticky top-0 z-50 bg-white border-b border-border shadow-sm">
+        <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="text-2xl font-black text-foreground tracking-tight">
+            Tam<span style={{ color: "#f6ab78" }}>Bebe</span>.
           </Link>
-          <nav className="hidden md:flex items-center gap-8">
-            <a href="/#process" className="text-sm font-medium hover:text-primary transition-colors">The Process</a>
-            <Link href="/" className="text-sm font-medium hover:text-primary transition-colors">Shop</Link>
-            <a href="/#faq" className="text-sm font-medium hover:text-primary transition-colors">FAQ</a>
+          <nav className="hidden md:flex items-center gap-1">
+            <a href="/#process" className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg">The Process</a>
+            <Link href="/" className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg">Shop</Link>
+            <a href="/#faq" className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg">FAQ</a>
+            <a
+              href="/"
+              className="ml-2 px-5 py-2 rounded-full text-sm font-bold text-white"
+              style={{ backgroundColor: "#65a6db" }}
+            >
+              All Strollers
+            </a>
           </nav>
+          <button
+            className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
+        {mobileOpen && (
+          <div className="md:hidden border-t border-border bg-white px-4 pb-4 pt-2 flex flex-col gap-1">
+            <a href="/#process" onClick={() => setMobileOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-muted">The Process</a>
+            <Link href="/" onClick={() => setMobileOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-muted">All Strollers</Link>
+          </div>
+        )}
       </header>
 
       <main className="flex-1">
         <div className="container mx-auto px-4 md:px-6 py-8">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8"
+            className="inline-flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors mb-8"
             data-testid="link-back"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to all strollers
           </Link>
 
-          <div className="grid md:grid-cols-2 gap-12 lg:gap-20">
+          <div className="grid md:grid-cols-2 gap-10 lg:gap-16">
             <motion.div
               initial={{ opacity: 0, x: -24 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
               className="relative"
             >
-              <div className="sticky top-28 rounded-3xl bg-white border border-card-border overflow-hidden aspect-square flex items-center justify-center p-10">
+              <div className="sticky top-24 rounded-3xl bg-gray-50 border-2 border-border overflow-hidden aspect-square flex items-center justify-center p-10">
                 <div className="absolute top-5 left-5 flex flex-col gap-2">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-primary/10 text-primary border border-primary/20 rounded-full px-3 py-1">
+                  <span
+                    className="inline-flex items-center gap-1.5 text-xs font-black rounded-full px-3 py-1 text-white"
+                    style={{ backgroundColor: "#65a6db" }}
+                  >
                     <ShieldCheck className="w-3.5 h-3.5" /> Certified
                   </span>
-                  <span className={`inline-flex items-center text-xs font-semibold border rounded-full px-3 py-1 ${conditionColor[product.condition]}`}>
+                  <span
+                    className="inline-flex items-center text-xs font-black rounded-full px-3 py-1"
+                    style={{ backgroundColor: cs.bg, color: cs.color }}
+                  >
                     {product.condition}
                   </span>
                 </div>
@@ -84,96 +114,111 @@ export default function ProductDetail() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="flex flex-col"
             >
-              <div className="text-sm font-semibold text-primary uppercase tracking-widest mb-2">
+              <div className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: "#65a6db" }}>
                 {product.brand}
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-2">
+              <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2 text-foreground">
                 {product.model}
               </h1>
-              <div className="text-muted-foreground text-sm mb-6">{product.year} · {product.color}</div>
+              <div className="text-muted-foreground text-sm font-semibold mb-5">{product.year} · {product.color}</div>
 
-              <div className="flex items-baseline gap-4 mb-8">
-                <span className="text-4xl font-bold text-foreground" data-testid="text-price">{product.price}</span>
-                <span className="text-lg text-muted-foreground line-through">Retail {product.retailPrice}</span>
-                <Badge className="bg-primary/10 text-primary border-0 text-sm font-semibold">
+              <div className="flex items-baseline gap-4 mb-6">
+                <span
+                  className="text-4xl font-black"
+                  style={{ color: "#f6ab78" }}
+                  data-testid="text-price"
+                >
+                  {product.price}
+                </span>
+                <span className="text-base text-muted-foreground line-through font-semibold">Retail {product.retailPrice}</span>
+                <span
+                  className="text-xs font-black px-3 py-1 rounded-full"
+                  style={{ backgroundColor: "#65a6db20", color: "#3d7fb5" }}
+                >
                   Certified Renewed
-                </Badge>
+                </span>
               </div>
 
-              <p className="text-muted-foreground leading-relaxed mb-8 text-base">
+              <p className="text-muted-foreground leading-relaxed mb-7 text-sm font-medium">
                 {product.description}
               </p>
 
-              <div className="grid grid-cols-2 gap-4 mb-8 text-sm">
+              <div className="grid grid-cols-2 gap-3 mb-7 text-sm">
                 {[
                   ["Weight", product.weight],
                   ["Fold", product.foldType],
                   ["Seat positions", product.seatPositions],
                   ["Max child weight", product.maxChildWeight],
                 ].map(([label, value]) => (
-                  <div key={label} className="rounded-xl bg-muted/40 border border-border p-4">
-                    <div className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">{label}</div>
-                    <div className="font-semibold text-foreground">{value}</div>
+                  <div key={label} className="rounded-xl bg-white border-2 border-border p-4">
+                    <div className="text-xs text-muted-foreground mb-1 font-black uppercase tracking-wide">{label}</div>
+                    <div className="font-black text-foreground text-sm">{value}</div>
                   </div>
                 ))}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 mb-10">
-                <Button
-                  size="lg"
-                  className="flex-1 rounded-full text-base font-semibold"
+              <div className="flex flex-col sm:flex-row gap-3 mb-8">
+                <a
+                  href="#"
+                  className="flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-full font-black text-base transition-all hover:opacity-90"
+                  style={{ backgroundColor: "#f6ab78", color: "#252d3a" }}
                   data-testid="button-inquire"
                 >
                   Inquire about this stroller
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="flex-1 rounded-full text-base"
+                </a>
+                <a
+                  href="#"
+                  className="flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-full font-black text-base border-2 transition-all hover:bg-muted"
+                  style={{ borderColor: "#65a6db", color: "#65a6db" }}
                   data-testid="button-reserve"
                 >
                   Reserve for 48h
-                </Button>
+                </a>
               </div>
 
-              <div className="space-y-6">
-                <div>
-                  <h3 className="flex items-center gap-2 font-semibold text-foreground mb-4">
-                    <ShieldCheck className="w-5 h-5 text-primary" />
+              <div className="space-y-5">
+                <div className="bg-white rounded-2xl border-2 p-5" style={{ borderColor: "#65a6db40" }}>
+                  <h3 className="flex items-center gap-2 font-black text-foreground mb-4 text-sm">
+                    <ShieldCheck className="w-5 h-5" style={{ color: "#65a6db" }} />
                     Our 24-point renewal checklist
                   </h3>
-                  <ul className="space-y-2.5">
+                  <ul className="space-y-2">
                     {product.renewalChecks.map((check) => (
-                      <li key={check} className="flex items-start gap-2.5 text-sm text-muted-foreground">
-                        <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                      <li key={check} className="flex items-start gap-2.5 text-sm text-muted-foreground font-medium">
+                        <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#65a6db" }} />
                         {check}
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="border-t border-border pt-6">
-                  <h3 className="flex items-center gap-2 font-semibold text-foreground mb-4">
-                    <Package className="w-5 h-5 text-primary" />
+                <div className="bg-white rounded-2xl border-2 p-5" style={{ borderColor: "#f6ab7840" }}>
+                  <h3 className="flex items-center gap-2 font-black text-foreground mb-4 text-sm">
+                    <Package className="w-5 h-5" style={{ color: "#f6ab78" }} />
                     What's included
                   </h3>
-                  <ul className="space-y-2.5">
+                  <ul className="space-y-2">
                     {product.included.map((item) => (
-                      <li key={item} className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                        <ChevronRight className="w-4 h-4 text-primary shrink-0" />
+                      <li key={item} className="flex items-center gap-2.5 text-sm text-muted-foreground font-medium">
+                        <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#f6ab78" }} />
                         {item}
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="border-t border-border pt-6">
-                  <h3 className="font-semibold text-foreground mb-4">Highlights</h3>
+                <div>
+                  <h3 className="font-black text-foreground mb-3 text-sm">Highlights</h3>
                   <div className="flex flex-wrap gap-2">
-                    {product.highlights.map((h) => (
+                    {product.highlights.map((h, i) => (
                       <span
                         key={h}
-                        className="text-xs font-medium bg-primary/8 text-primary border border-primary/20 rounded-full px-3 py-1.5"
+                        className="text-xs font-black rounded-full px-3 py-1.5"
+                        style={
+                          i % 2 === 0
+                            ? { backgroundColor: "#65a6db15", color: "#3d7fb5" }
+                            : { backgroundColor: "#f6ab7820", color: "#b8712a" }
+                        }
                       >
                         {h}
                       </span>
