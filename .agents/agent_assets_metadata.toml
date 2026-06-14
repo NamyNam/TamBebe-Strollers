@@ -1,0 +1,26 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "-2KkENzCmcHF6YRdYPYME"
+uri = "file://artifacts/tambebe/src/assets/images/hero.png"
+type = "image"
+title = "Hero lifestyle living room"
+
+[[generated]]
+id = "G_YN0bUHa4l6Kcq24KnCL"
+uri = "file://artifacts/tambebe/src/assets/images/stroller-1.png"
+type = "image"
+title = "Premium baby stroller one"
+
+[[generated]]
+id = "XAJMkEx6KWiOVy5bKS_iM"
+uri = "file://artifacts/tambebe/src/assets/images/stroller-2.png"
+type = "image"
+title = "Premium baby stroller two"
+
+[[generated]]
+id = "liDdAbHB2aOpvuaQ20Ett"
+uri = "file://artifacts/tambebe/src/assets/images/stroller-3.png"
+type = "image"
+title = "Premium baby stroller three"
