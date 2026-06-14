@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ShieldCheck, Star } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
 import heroImg from "@/assets/images/hero.png";
 
 export function Hero() {
@@ -33,25 +33,22 @@ export function Hero() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button
-                size="lg"
-                className="h-12 px-8 rounded-full font-bold text-base"
-                style={{ backgroundColor: "#f6ab78", color: "#252d3a", borderColor: "#f6ab78" }}
+              <Link
+                href="/shop"
+                className="inline-flex items-center justify-center h-12 px-8 rounded-full font-bold text-base transition-opacity hover:opacity-90"
+                style={{ backgroundColor: "#f6ab78", color: "#252d3a" }}
                 data-testid="button-shop-strollers"
-                asChild
               >
-                <a href="#shop">Shop Strollers</a>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-12 px-8 rounded-full font-bold text-base border-2"
+                Shop Strollers
+              </Link>
+              <Link
+                href="/process"
+                className="inline-flex items-center justify-center h-12 px-8 rounded-full font-bold text-base border-2 transition-colors hover:bg-muted"
                 style={{ borderColor: "#65a6db", color: "#65a6db" }}
                 data-testid="button-learn-more"
-                asChild
               >
-                <a href="#process">Learn our Process</a>
-              </Button>
+                Learn our Process
+              </Link>
             </div>
 
             <motion.div
@@ -100,9 +97,7 @@ export function Hero() {
               style={{ maxHeight: "80vh", margin: "2rem 0 2rem 2rem" }}
               data-testid="img-hero"
             />
-            <div
-              className="absolute bottom-16 left-4 z-20 bg-white rounded-2xl shadow-lg px-5 py-3 flex items-center gap-3 border border-border"
-            >
+            <div className="absolute bottom-16 left-4 z-20 bg-white rounded-2xl shadow-lg px-5 py-3 flex items-center gap-3 border border-border">
               <div
                 className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
                 style={{ backgroundColor: "#65a6db" }}
