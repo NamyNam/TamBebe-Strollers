@@ -1,11 +1,9 @@
 import { useParams, Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowLeft, ShieldCheck, CheckCircle2, Package, ChevronRight, Star } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowLeft, ShieldCheck, CheckCircle2, Package, ChevronRight } from "lucide-react";
 import { getProductBySlug } from "@/data/products";
 import { Footer } from "@/components/sections/Footer";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Navbar } from "@/components/Navbar";
 
 const conditionStyle: Record<string, { bg: string; color: string }> = {
   "Like New":  { bg: "#65a6db20", color: "#3d7fb5" },
@@ -16,14 +14,13 @@ const conditionStyle: Record<string, { bg: string; color: string }> = {
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const product = getProductBySlug(slug);
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
         <p className="text-xl font-black text-foreground">Stroller not found.</p>
-        <Link href="/">
-          <Button variant="outline">Back to home</Button>
+        <Link href="/shop" className="px-6 py-2.5 rounded-full text-sm font-black text-white" style={{ backgroundColor: "#65a6db" }}>
+          Back to shop
         </Link>
       </div>
     );
@@ -33,43 +30,22 @@ export default function ProductDetail() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="sticky top-0 z-50 bg-white border-b border-border shadow-sm">
-        <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-black text-foreground tracking-tight">
-            Tam<span style={{ color: "#f6ab78" }}>Bebe</span>.
-          </Link>
-          <nav className="hidden md:flex items-center gap-1">
-            <a href="/#process" className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg">The Process</a>
-            <Link href="/" className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg">Shop</Link>
-            <a href="/#faq" className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg">FAQ</a>
-            <a
-              href="/"
-              className="ml-2 px-5 py-2 rounded-full text-sm font-bold text-white"
-              style={{ backgroundColor: "#65a6db" }}
-            >
-              All Strollers
-            </a>
-          </nav>
-          <button
-            className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+      <Navbar />
+
+      <div className="py-4" style={{ backgroundColor: "#65a6db10", borderBottom: "1px solid #65a6db20" }}>
+        <div className="container mx-auto px-4 md:px-6 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+          <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
+          <span>/</span>
+          <Link href="/shop" className="hover:text-foreground transition-colors">Shop</Link>
+          <span>/</span>
+          <span className="text-foreground font-bold">{product.brand} {product.model}</span>
         </div>
-        {mobileOpen && (
-          <div className="md:hidden border-t border-border bg-white px-4 pb-4 pt-2 flex flex-col gap-1">
-            <a href="/#process" onClick={() => setMobileOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-muted">The Process</a>
-            <Link href="/" onClick={() => setMobileOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-muted">All Strollers</Link>
-          </div>
-        )}
-      </header>
+      </div>
 
       <main className="flex-1">
         <div className="container mx-auto px-4 md:px-6 py-8">
           <Link
-            href="/"
+            href="/shop"
             className="inline-flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors mb-8"
             data-testid="link-back"
           >
