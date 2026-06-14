@@ -2,24 +2,32 @@ import stroller1 from "@/assets/images/stroller-1.png";
 import stroller2 from "@/assets/images/stroller-2.png";
 import stroller3 from "@/assets/images/stroller-3.png";
 
-export type ConditionGrade = "Like New" | "Excellent" | "Very Good";
+export type ConditionGrade = "Unopened" | "Open Box" | "Barely Used" | "Gently Used";
+
+export interface ProductVariant {
+  id: string;
+  color: string;
+  colorHex: string;
+  year: string;
+  condition: ConditionGrade;
+  price: string;
+  priceNum: number;
+  stock: number;
+  image: string;
+}
 
 export interface Product {
   id: number;
   slug: string;
   brand: string;
   model: string;
-  price: string;
   retailPrice: string;
-  condition: ConditionGrade;
-  image: string;
-  year: string;
-  color: string;
+  description: string;
+  variants: ProductVariant[];
   weight: string;
   foldType: string;
   seatPositions: string;
   maxChildWeight: string;
-  description: string;
   renewalChecks: string[];
   included: string[];
   highlights: string[];
@@ -31,18 +39,59 @@ export const products: Product[] = [
     slug: "bugaboo-fox-3",
     brand: "Bugaboo",
     model: "Fox 3",
-    price: "€450",
     retailPrice: "€1,200",
-    condition: "Like New",
-    image: stroller1,
-    year: "2022",
-    color: "Midnight Black / Aluminum",
+    description:
+      "The Bugaboo Fox 3 is one of the world's most trusted all-terrain travel systems. Exceptional suspension, one-hand fold, and fully reversible seat make it the gold standard for newborns through toddlers.",
     weight: "10.5 kg",
     foldType: "One-hand compact fold",
     seatPositions: "Forward & parent-facing, full recline",
     maxChildWeight: "22 kg",
-    description:
-      "The Bugaboo Fox 3 is one of the world's most trusted all-terrain travel systems. This unit was used for less than a year — the fabric shows no signs of wear, the chassis is fully rigid, and all suspension is operating as designed. Steam-cleaned, mechanically tested, and certified by our team.",
+    variants: [
+      {
+        id: "bugaboo-fox-3-midnight-black",
+        color: "Midnight Black / Aluminum",
+        colorHex: "#1c1c1e",
+        year: "2022",
+        condition: "Barely Used",
+        price: "€450",
+        priceNum: 450,
+        stock: 1,
+        image: stroller1,
+      },
+      {
+        id: "bugaboo-fox-3-forest-green",
+        color: "Forest Green / Aluminum",
+        colorHex: "#2d5a3d",
+        year: "2022",
+        condition: "Gently Used",
+        price: "€380",
+        priceNum: 380,
+        stock: 1,
+        image: stroller1,
+      },
+      {
+        id: "bugaboo-fox-3-sand-beige",
+        color: "Sand Beige / Aluminum",
+        colorHex: "#c4a882",
+        year: "2021",
+        condition: "Open Box",
+        price: "€420",
+        priceNum: 420,
+        stock: 0,
+        image: stroller1,
+      },
+      {
+        id: "bugaboo-fox-3-white-aluminum",
+        color: "White / Aluminum",
+        colorHex: "#f0efed",
+        year: "2023",
+        condition: "Unopened",
+        price: "€560",
+        priceNum: 560,
+        stock: 1,
+        image: stroller1,
+      },
+    ],
     renewalChecks: [
       "Full steam-clean of all fabric components",
       "Chassis alignment and rigidity check",
@@ -73,18 +122,59 @@ export const products: Product[] = [
     slug: "uppababy-vista-v2",
     brand: "UPPAbaby",
     model: "Vista V2",
-    price: "€480",
     retailPrice: "€1,100",
-    condition: "Excellent",
-    image: stroller2,
-    year: "2021",
-    color: "Greyson (Charcoal Melange / Carbon)",
+    description:
+      "The UPPAbaby Vista V2 is a family favorite — built to grow with your child and expandable for twins or siblings. Self-standing fold, industry-leading canopy, and near-universal car seat compatibility.",
     weight: "11.4 kg",
     foldType: "Self-standing fold with seat attached",
     seatPositions: "Forward & parent-facing, multiple recline",
     maxChildWeight: "22.7 kg",
-    description:
-      "The UPPAbaby Vista V2 is a family favorite — built to grow with your child and expandable for twins or siblings. This unit is in excellent condition with minimal use. The self-standing fold still clicks into place crisply. All seating and suspension has been fully verified by our technicians.",
+    variants: [
+      {
+        id: "uppababy-vista-v2-greyson",
+        color: "Greyson (Charcoal Melange)",
+        colorHex: "#6b6b6b",
+        year: "2021",
+        condition: "Gently Used",
+        price: "€480",
+        priceNum: 480,
+        stock: 1,
+        image: stroller2,
+      },
+      {
+        id: "uppababy-vista-v2-bryce",
+        color: "Bryce (Blue Melange)",
+        colorHex: "#4a7ab5",
+        year: "2022",
+        condition: "Barely Used",
+        price: "€520",
+        priceNum: 520,
+        stock: 1,
+        image: stroller2,
+      },
+      {
+        id: "uppababy-vista-v2-henry",
+        color: "Henry (Warm Grey)",
+        colorHex: "#9e9a95",
+        year: "2021",
+        condition: "Open Box",
+        price: "€430",
+        priceNum: 430,
+        stock: 0,
+        image: stroller2,
+      },
+      {
+        id: "uppababy-vista-v2-jake",
+        color: "Jake (Black)",
+        colorHex: "#2a2a2a",
+        year: "2023",
+        condition: "Unopened",
+        price: "€590",
+        priceNum: 590,
+        stock: 1,
+        image: stroller2,
+      },
+    ],
     renewalChecks: [
       "Full steam-clean and fabric sanitization",
       "Self-standing fold mechanism lubrication and test",
@@ -115,18 +205,59 @@ export const products: Product[] = [
     slug: "nuna-mixx-next",
     brand: "Nuna",
     model: "Mixx Next",
-    price: "€380",
     retailPrice: "€850",
-    condition: "Very Good",
-    image: stroller3,
-    year: "2021",
-    color: "Hazelwood (Warm Beige)",
+    description:
+      "The Nuna Mixx Next is a thoughtfully engineered urban stroller — lighter and more nimble than most travel systems without sacrificing any safety credentials. Magnetic peek-a-boo window, full recline, and one-hand fold.",
     weight: "9.5 kg",
     foldType: "One-hand compact fold with seat attached",
     seatPositions: "Forward & parent-facing, full recline",
     maxChildWeight: "22 kg",
-    description:
-      "The Nuna Mixx Next is a thoughtfully engineered urban stroller — lighter and more nimble than most travel systems without sacrificing any safety credentials. This unit has some light scuffing on the chassis (noted in our condition grade) but all mechanical systems are fully operational and the fabric is clean and fresh.",
+    variants: [
+      {
+        id: "nuna-mixx-next-hazelwood",
+        color: "Hazelwood (Warm Beige)",
+        colorHex: "#c4956a",
+        year: "2021",
+        condition: "Gently Used",
+        price: "€380",
+        priceNum: 380,
+        stock: 1,
+        image: stroller3,
+      },
+      {
+        id: "nuna-mixx-next-riveted",
+        color: "Riveted (Charcoal)",
+        colorHex: "#4b5563",
+        year: "2022",
+        condition: "Open Box",
+        price: "€350",
+        priceNum: 350,
+        stock: 1,
+        image: stroller3,
+      },
+      {
+        id: "nuna-mixx-next-ocean",
+        color: "Ocean (Teal Blue)",
+        colorHex: "#2563a8",
+        year: "2022",
+        condition: "Barely Used",
+        price: "€400",
+        priceNum: 400,
+        stock: 0,
+        image: stroller3,
+      },
+      {
+        id: "nuna-mixx-next-snow",
+        color: "Snow (Cream White)",
+        colorHex: "#f5f0e8",
+        year: "2023",
+        condition: "Unopened",
+        price: "€490",
+        priceNum: 490,
+        stock: 1,
+        image: stroller3,
+      },
+    ],
     renewalChecks: [
       "Steam-clean of seat pad, canopy, and carrycot",
       "Chassis scuff noted and documented (cosmetic only)",
@@ -157,3 +288,47 @@ export const products: Product[] = [
 export function getProductBySlug(slug: string): Product | undefined {
   return products.find((p) => p.slug === slug);
 }
+
+export function getVariantById(product: Product, variantId: string): ProductVariant {
+  return product.variants.find((v) => v.id === variantId) ?? product.variants[0];
+}
+
+export type FlatVariant = ProductVariant & {
+  product: Product;
+};
+
+export function getAllVariants(): FlatVariant[] {
+  return products.flatMap((p) =>
+    p.variants.map((v) => ({ ...v, product: p }))
+  );
+}
+
+export const conditionMeta: Record<
+  ConditionGrade,
+  { label: string; color: string; bg: string; description: string }
+> = {
+  Unopened: {
+    label: "Unopened",
+    color: "#2563a8",
+    bg: "#eff6ff",
+    description: "Box sealed. Never assembled or used.",
+  },
+  "Open Box": {
+    label: "Open Box",
+    color: "#7c3aed",
+    bg: "#f5f3ff",
+    description: "Box opened, assembled briefly for inspection only.",
+  },
+  "Barely Used": {
+    label: "Barely Used",
+    color: "#0d7f5a",
+    bg: "#ecfdf5",
+    description: "Used a handful of times. Like new in every practical sense.",
+  },
+  "Gently Used": {
+    label: "Gently Used",
+    color: "#b45309",
+    bg: "#fffbeb",
+    description: "Normal use with minor cosmetic signs. Fully certified.",
+  },
+};

@@ -2,23 +2,15 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, ShieldCheck, SlidersHorizontal, X, ChevronDown } from "lucide-react";
-import { products } from "@/data/products";
+import { getAllVariants, conditionMeta, products } from "@/data/products";
+import type { ConditionGrade } from "@/data/products";
 import { Footer } from "@/components/sections/Footer";
 import { Navbar } from "@/components/Navbar";
 
 type SortOption = "price-asc" | "price-desc" | "newest";
-type ConditionFilter = "All" | "Like New" | "Excellent" | "Very Good";
 
 const ALL_BRANDS = ["All", ...Array.from(new Set(products.map((p) => p.brand)))];
-const CONDITIONS: ConditionFilter[] = ["All", "Like New", "Excellent", "Very Good"];
-
-const conditionDot: Record<string, string> = {
-  "Like New": "#65a6db",
-  "Excellent": "#f6ab78",
-  "Very Good": "#f6ab78",
-};
-
-const priceNum = (price: string) => parseInt(price.replace(/[^0-9]/g, ""), 10);
+const ALL_CONDITIONS: ("All" | ConditionGrade)[] = ["All", "Unopened", "Open Box", "Barely Used", "Gently Used"];
 
 const sortLabels: Record<SortOption, string> = {
   "price-asc": "Price: Low to High",
@@ -28,27 +20,35 @@ const sortLabels: Record<SortOption, string> = {
 
 export default function Inventory() {
   const [brand, setBrand] = useState("All");
-  const [condition, setCondition] = useState<ConditionFilter>("All");
+  const [condition, setCondition] = useState<"All" | ConditionGrade>("All");
   const [sort, setSort] = useState<SortOption>("newest");
   const [sortOpen, setSortOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [inStockOnly, setInStockOnly] = useState(false);
+
+  const allVariants = useMemo(() => getAllVariants(), []);
 
   const filtered = useMemo(() => {
-    let list = [...products];
-    if (brand !== "All") list = list.filter((p) => p.brand === brand);
-    if (condition !== "All") list = list.filter((p) => p.condition === condition);
-    if (sort === "price-asc") list.sort((a, b) => priceNum(a.price) - priceNum(b.price));
-    if (sort === "price-desc") list.sort((a, b) => priceNum(b.price) - priceNum(a.price));
+    let list = [...allVariants];
+    if (brand !== "All") list = list.filter((v) => v.product.brand === brand);
+    if (condition !== "All") list = list.filter((v) => v.condition === condition);
+    if (inStockOnly) list = list.filter((v) => v.stock > 0);
+    if (sort === "price-asc") list.sort((a, b) => a.priceNum - b.priceNum);
+    if (sort === "price-desc") list.sort((a, b) => b.priceNum - a.priceNum);
     if (sort === "newest") list.sort((a, b) => parseInt(b.year) - parseInt(a.year));
     return list;
-  }, [brand, condition, sort]);
+  }, [allVariants, brand, condition, sort, inStockOnly]);
 
-  const activeFilters = (brand !== "All" ? 1 : 0) + (condition !== "All" ? 1 : 0);
+  const activeFilters =
+    (brand !== "All" ? 1 : 0) +
+    (condition !== "All" ? 1 : 0) +
+    (inStockOnly ? 1 : 0);
 
   function clearAll() {
     setBrand("All");
     setCondition("All");
     setSort("newest");
+    setInStockOnly(false);
   }
 
   return (
@@ -64,14 +64,13 @@ export default function Inventory() {
           </div>
           <h1 className="text-3xl md:text-4xl font-black text-white mb-2">All Certified Strollers</h1>
           <p className="text-white/80 font-semibold text-base max-w-xl">
-            Every stroller below has been steam-cleaned, mechanically tested, and certified by our team. What you see is exactly what you get.
+            Every listing has been steam-cleaned, mechanically tested, and certified. What you see is exactly what you get.
           </p>
         </div>
       </div>
 
       <main className="flex-1 container mx-auto px-4 md:px-6 py-10">
         <div className="flex flex-col md:flex-row gap-8">
-
           <aside className="w-full md:w-60 shrink-0">
             <div className="md:sticky md:top-24">
               <div className="flex items-center justify-between mb-4">
@@ -79,9 +78,8 @@ export default function Inventory() {
                 {activeFilters > 0 && (
                   <button
                     onClick={clearAll}
-                    className="text-xs font-bold flex items-center gap-1 transition-colors"
+                    className="text-xs font-bold flex items-center gap-1"
                     style={{ color: "#65a6db" }}
-                    data-testid="button-clear-filters"
                   >
                     <X className="w-3 h-3" /> Clear all
                   </button>
@@ -98,7 +96,6 @@ export default function Inventory() {
                         onClick={() => setBrand(b)}
                         className={`text-left text-sm font-bold px-3 py-2 rounded-xl transition-all ${brand === b ? "text-white" : "text-foreground hover:bg-muted"}`}
                         style={brand === b ? { backgroundColor: "#65a6db" } : {}}
-                        data-testid={`filter-brand-${b}`}
                       >
                         {b}
                       </button>
@@ -109,24 +106,47 @@ export default function Inventory() {
                 <div>
                   <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-3">Condition</h3>
                   <div className="flex flex-col gap-1.5">
-                    {CONDITIONS.map((c) => (
-                      <button
-                        key={c}
-                        onClick={() => setCondition(c)}
-                        className={`text-left text-sm font-bold px-3 py-2 rounded-xl transition-all flex items-center gap-2 ${condition === c ? "text-white" : "text-foreground hover:bg-muted"}`}
-                        style={condition === c ? { backgroundColor: "#f6ab78" } : {}}
-                        data-testid={`filter-condition-${c}`}
-                      >
-                        {c !== "All" && (
-                          <span
-                            className="w-2 h-2 rounded-full inline-block shrink-0"
-                            style={{ backgroundColor: condition === c ? "white" : conditionDot[c] }}
-                          />
-                        )}
-                        {c}
-                      </button>
-                    ))}
+                    {ALL_CONDITIONS.map((c) => {
+                      const meta = c !== "All" ? conditionMeta[c] : null;
+                      const isActive = condition === c;
+                      return (
+                        <button
+                          key={c}
+                          onClick={() => setCondition(c)}
+                          className={`text-left text-sm font-bold px-3 py-2 rounded-xl transition-all flex items-center gap-2`}
+                          style={isActive && meta
+                            ? { backgroundColor: meta.color, color: "white" }
+                            : isActive
+                              ? { backgroundColor: "#65a6db", color: "white" }
+                              : {}
+                          }
+                        >
+                          {meta && (
+                            <span
+                              className="w-2 h-2 rounded-full shrink-0"
+                              style={{ backgroundColor: isActive ? "white" : meta.color }}
+                            />
+                          )}
+                          {c}
+                        </button>
+                      );
+                    })}
                   </div>
+                </div>
+
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-3">Availability</h3>
+                  <label className="flex items-center gap-3 cursor-pointer px-3 py-2 rounded-xl hover:bg-muted transition-colors">
+                    <div
+                      className={`w-10 h-6 rounded-full transition-all relative ${inStockOnly ? "bg-green-500" : "bg-gray-200"}`}
+                      onClick={() => setInStockOnly(!inStockOnly)}
+                    >
+                      <span
+                        className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${inStockOnly ? "left-5" : "left-1"}`}
+                      />
+                    </div>
+                    <span className="text-sm font-bold text-foreground">In stock only</span>
+                  </label>
                 </div>
 
                 <div className="border-t border-border pt-5">
@@ -135,7 +155,7 @@ export default function Inventory() {
                     style={{ backgroundColor: "#65a6db10", color: "#3d7fb5" }}
                   >
                     <ShieldCheck className="w-4 h-4 shrink-0" />
-                    All items are TamBebe certified
+                    All items TamBebe certified
                   </div>
                 </div>
               </div>
@@ -145,7 +165,6 @@ export default function Inventory() {
                   onClick={() => setFiltersOpen(!filtersOpen)}
                   className="w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 font-bold text-sm"
                   style={{ borderColor: "#65a6db", color: "#65a6db" }}
-                  data-testid="button-toggle-filters"
                 >
                   <span className="flex items-center gap-2">
                     <SlidersHorizontal className="w-4 h-4" />
@@ -153,19 +172,15 @@ export default function Inventory() {
                   </span>
                   <ChevronDown className={`w-4 h-4 transition-transform ${filtersOpen ? "rotate-180" : ""}`} />
                 </button>
-
                 {filtersOpen && (
                   <div className="mt-3 p-4 border border-border rounded-2xl bg-white space-y-5">
                     <div>
                       <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">Brand</h3>
                       <div className="flex flex-wrap gap-2">
                         {ALL_BRANDS.map((b) => (
-                          <button
-                            key={b}
-                            onClick={() => setBrand(b)}
-                            className={`text-xs font-black px-3 py-1.5 rounded-full transition-all`}
-                            style={brand === b ? { backgroundColor: "#65a6db", color: "white" } : { backgroundColor: "#f3f4f6", color: "#252d3a" }}
-                          >
+                          <button key={b} onClick={() => setBrand(b)}
+                            className="text-xs font-black px-3 py-1.5 rounded-full transition-all"
+                            style={brand === b ? { backgroundColor: "#65a6db", color: "white" } : { backgroundColor: "#f3f4f6" }}>
                             {b}
                           </button>
                         ))}
@@ -174,18 +189,19 @@ export default function Inventory() {
                     <div>
                       <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">Condition</h3>
                       <div className="flex flex-wrap gap-2">
-                        {CONDITIONS.map((c) => (
-                          <button
-                            key={c}
-                            onClick={() => setCondition(c)}
-                            className={`text-xs font-black px-3 py-1.5 rounded-full transition-all`}
-                            style={condition === c ? { backgroundColor: "#f6ab78", color: "#252d3a" } : { backgroundColor: "#f3f4f6", color: "#252d3a" }}
-                          >
+                        {ALL_CONDITIONS.map((c) => (
+                          <button key={c} onClick={() => setCondition(c)}
+                            className="text-xs font-black px-3 py-1.5 rounded-full transition-all"
+                            style={condition === c ? { backgroundColor: "#f6ab78", color: "#252d3a" } : { backgroundColor: "#f3f4f6" }}>
                             {c}
                           </button>
                         ))}
                       </div>
                     </div>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" checked={inStockOnly} onChange={e => setInStockOnly(e.target.checked)} className="rounded" />
+                      <span className="text-sm font-bold">In stock only</span>
+                    </label>
                   </div>
                 )}
               </div>
@@ -196,14 +212,12 @@ export default function Inventory() {
             <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
               <p className="text-sm font-bold text-muted-foreground">
                 <span className="font-black text-foreground text-base">{filtered.length}</span>{" "}
-                stroller{filtered.length !== 1 ? "s" : ""} available
+                listing{filtered.length !== 1 ? "s" : ""} available
               </p>
-
               <div className="relative">
                 <button
                   onClick={() => setSortOpen(!sortOpen)}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-border text-sm font-bold hover:border-foreground transition-colors"
-                  data-testid="button-sort"
                 >
                   {sortLabels[sort]}
                   <ChevronDown className={`w-4 h-4 transition-transform ${sortOpen ? "rotate-180" : ""}`} />
@@ -211,13 +225,9 @@ export default function Inventory() {
                 {sortOpen && (
                   <div className="absolute right-0 top-full mt-1.5 bg-white border border-border rounded-2xl shadow-lg overflow-hidden z-20 min-w-48">
                     {(Object.keys(sortLabels) as SortOption[]).map((key) => (
-                      <button
-                        key={key}
-                        onClick={() => { setSort(key); setSortOpen(false); }}
+                      <button key={key} onClick={() => { setSort(key); setSortOpen(false); }}
                         className={`w-full text-left px-4 py-3 text-sm font-bold hover:bg-muted transition-colors ${sort === key ? "text-white" : "text-foreground"}`}
-                        style={sort === key ? { backgroundColor: "#65a6db" } : {}}
-                        data-testid={`sort-${key}`}
-                      >
+                        style={sort === key ? { backgroundColor: "#65a6db" } : {}}>
                         {sortLabels[key]}
                       </button>
                     ))}
@@ -229,25 +239,21 @@ export default function Inventory() {
             {activeFilters > 0 && (
               <div className="flex flex-wrap gap-2 mb-5">
                 {brand !== "All" && (
-                  <span
-                    className="inline-flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full"
-                    style={{ backgroundColor: "#65a6db20", color: "#3d7fb5" }}
-                  >
+                  <span className="inline-flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full" style={{ backgroundColor: "#65a6db20", color: "#3d7fb5" }}>
                     Brand: {brand}
-                    <button onClick={() => setBrand("All")} className="hover:opacity-70">
-                      <X className="w-3 h-3" />
-                    </button>
+                    <button onClick={() => setBrand("All")}><X className="w-3 h-3" /></button>
                   </span>
                 )}
                 {condition !== "All" && (
-                  <span
-                    className="inline-flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full"
-                    style={{ backgroundColor: "#f6ab7820", color: "#b8712a" }}
-                  >
+                  <span className="inline-flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full" style={{ backgroundColor: "#f6ab7820", color: "#b8712a" }}>
                     Condition: {condition}
-                    <button onClick={() => setCondition("All")} className="hover:opacity-70">
-                      <X className="w-3 h-3" />
-                    </button>
+                    <button onClick={() => setCondition("All")}><X className="w-3 h-3" /></button>
+                  </span>
+                )}
+                {inStockOnly && (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full bg-green-100 text-green-700">
+                    In stock only
+                    <button onClick={() => setInStockOnly(false)}><X className="w-3 h-3" /></button>
                   </span>
                 )}
               </div>
@@ -255,111 +261,93 @@ export default function Inventory() {
 
             <AnimatePresence mode="popLayout">
               {filtered.length === 0 ? (
-                <motion.div
-                  key="empty"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex flex-col items-center justify-center py-24 text-center"
-                >
-                  <div
-                    className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-                    style={{ backgroundColor: "#65a6db15" }}
-                  >
+                <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="flex flex-col items-center justify-center py-24 text-center">
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: "#65a6db15" }}>
                     <ShieldCheck className="w-8 h-8" style={{ color: "#65a6db" }} />
                   </div>
-                  <h3 className="text-xl font-black text-foreground mb-2">No strollers match</h3>
+                  <h3 className="text-xl font-black text-foreground mb-2">No listings match</h3>
                   <p className="text-muted-foreground font-medium text-sm mb-6 max-w-xs">
-                    Try removing some filters — our inventory updates weekly with new certified arrivals.
+                    Try adjusting your filters — new certified stock arrives weekly.
                   </p>
-                  <button
-                    onClick={clearAll}
-                    className="px-6 py-2.5 rounded-full text-sm font-black text-white transition-opacity hover:opacity-90"
-                    style={{ backgroundColor: "#65a6db" }}
-                  >
+                  <button onClick={clearAll} className="px-6 py-2.5 rounded-full text-sm font-black text-white" style={{ backgroundColor: "#65a6db" }}>
                     Clear filters
                   </button>
                 </motion.div>
               ) : (
                 <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                  {filtered.map((product, index) => (
-                    <motion.div
-                      key={product.slug}
-                      layout
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 0.35, delay: index * 0.05 }}
-                    >
-                      <Link
-                        href={`/strollers/${product.slug}`}
-                        className="group block rounded-2xl bg-white border-2 border-border overflow-hidden flex flex-col cursor-pointer transition-all hover:shadow-lg hover:border-transparent"
-                        data-testid={`card-product-${product.slug}`}
-                      >
-                        <div className="relative bg-gray-50 aspect-[4/3] flex items-center justify-center overflow-hidden p-6">
-                          <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-                            <span
-                              className="inline-flex items-center gap-1 text-xs font-black px-2.5 py-1 rounded-full text-white"
-                              style={{ backgroundColor: "#65a6db" }}
-                            >
-                              <ShieldCheck className="w-3 h-3" /> Certified
-                            </span>
-                            <span className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full bg-white border border-border">
+                  {filtered.map((v, index) => {
+                    const meta = conditionMeta[v.condition];
+                    const oos = v.stock === 0;
+                    return (
+                      <motion.div key={v.id} layout
+                        initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.3, delay: index * 0.04 }}>
+                        <Link
+                          href={`/strollers/${v.product.slug}?v=${v.id}`}
+                          className={`group block rounded-2xl bg-white border-2 overflow-hidden flex flex-col cursor-pointer transition-all hover:shadow-lg ${oos ? "border-gray-200 opacity-70" : "border-border hover:border-transparent"}`}
+                        >
+                          <div className="relative bg-gray-50 aspect-[4/3] flex items-center justify-center overflow-hidden p-6">
+                            <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
+                              <span className="inline-flex items-center gap-1 text-xs font-black px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "#65a6db" }}>
+                                <ShieldCheck className="w-3 h-3" /> Certified
+                              </span>
+                              <span className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full" style={{ backgroundColor: meta.bg, color: meta.color }}>
+                                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: meta.color }} />
+                                {v.condition}
+                              </span>
+                              {oos && (
+                                <span className="inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-600">
+                                  Out of Stock
+                                </span>
+                              )}
+                            </div>
+                            <div className="absolute top-3 right-3 z-10">
                               <span
-                                className="w-1.5 h-1.5 rounded-full inline-block"
-                                style={{ backgroundColor: conditionDot[product.condition] }}
+                                className="w-5 h-5 rounded-full border-2 border-white shadow block"
+                                style={{ backgroundColor: v.colorHex }}
+                                title={v.color}
                               />
-                              {product.condition}
-                            </span>
+                            </div>
+                            <img
+                              src={v.image}
+                              alt={`${v.product.brand} ${v.product.model}`}
+                              className={`w-full h-full object-contain transition-all duration-500 group-hover:scale-105 ${oos ? "grayscale opacity-60" : ""}`}
+                            />
                           </div>
-                          <img
-                            src={product.image}
-                            alt={`${product.brand} ${product.model}`}
-                            className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
-                            data-testid={`img-product-${product.slug}`}
-                          />
-                        </div>
-                        <div className="p-5 flex flex-col flex-1">
-                          <div className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-1">{product.brand}</div>
-                          <h3 className="text-lg font-black mb-1 text-foreground">{product.model}</h3>
-                          <div className="text-xs text-muted-foreground font-semibold mb-3">{product.year} · {product.color}</div>
-                          <div className="mt-auto flex items-center justify-between">
-                            <div>
-                              <div className="text-2xl font-black" style={{ color: "#f6ab78" }} data-testid={`text-price-${product.slug}`}>
-                                {product.price}
+                          <div className="p-4 flex flex-col flex-1">
+                            <div className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-0.5">{v.product.brand}</div>
+                            <h3 className="text-base font-black mb-1 text-foreground">{v.product.model}</h3>
+                            <div className="text-xs text-muted-foreground font-semibold mb-3">{v.color} · {v.year}</div>
+                            <div className="mt-auto flex items-center justify-between">
+                              <div>
+                                <div className="text-xl font-black" style={{ color: oos ? "#9ca3af" : "#f6ab78" }}>
+                                  {v.price}
+                                </div>
+                                <div className="text-xs text-muted-foreground line-through font-semibold">Retail {v.product.retailPrice}</div>
                               </div>
-                              <div className="text-xs text-muted-foreground line-through font-semibold">Retail {product.retailPrice}</div>
-                            </div>
-                            <div
-                              className="w-10 h-10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
-                              style={{ backgroundColor: "#65a6db15", color: "#65a6db" }}
-                            >
-                              <ArrowRight className="w-5 h-5" />
+                              {!oos && (
+                                <div className="w-9 h-9 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform" style={{ backgroundColor: "#65a6db15", color: "#65a6db" }}>
+                                  <ArrowRight className="w-4 h-4" />
+                                </div>
+                              )}
                             </div>
                           </div>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  ))}
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               )}
             </AnimatePresence>
 
             {filtered.length > 0 && (
-              <div
-                className="mt-12 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4"
-                style={{ backgroundColor: "#65a6db15" }}
-              >
+              <div className="mt-12 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ backgroundColor: "#65a6db15" }}>
                 <div>
                   <p className="font-black text-foreground text-base">Don't see what you need?</p>
-                  <p className="text-sm text-muted-foreground font-medium">New strollers are added weekly. Get notified first.</p>
+                  <p className="text-sm text-muted-foreground font-medium">New stock arrives weekly. Get notified first.</p>
                 </div>
-                <a
-                  href="#"
-                  className="shrink-0 px-6 py-3 rounded-full font-black text-sm text-white transition-opacity hover:opacity-90"
-                  style={{ backgroundColor: "#f6ab78", color: "#252d3a" }}
-                  data-testid="button-notify-me"
-                >
+                <a href="#" className="shrink-0 px-6 py-3 rounded-full font-black text-sm transition-opacity hover:opacity-90" style={{ backgroundColor: "#f6ab78", color: "#252d3a" }}>
                   Notify Me
                 </a>
               </div>
