@@ -110,29 +110,6 @@ function mergeProducts(storeData: StoreData): Product[] {
       }),
   }));
 
-  // 2. Append extra variants to existing products (apply overrides too)
-  for (const ev of storeData.extraVariants) {
-    if (hidden.has(ev.id)) continue;
-    const product = base.find((p) => p.slug === ev.productSlug);
-    if (!product) continue;
-    if (product.variants.find((v) => v.id === ev.id)) continue;
-    const override = storeData.variantOverrides[ev.id];
-    product.variants = [
-      ...product.variants,
-      {
-        id: ev.id,
-        color: ev.color,
-        colorHex: ev.colorHex,
-        condition: ev.condition,
-        year: ev.year,
-        price: override?.price ?? ev.price,
-        priceNum: override?.priceNum ?? ev.priceNum,
-        stock: override?.stock ?? ev.stock,
-        image: resolveImage(ev.image),
-      },
-    ];
-  }
-
   // 3. Extra products (dedup by slug)
   const seenSlugs = new Set(base.map((p) => p.slug));
   const extraProds: Product[] = storeData.extraProducts
@@ -169,7 +146,31 @@ function mergeProducts(storeData: StoreData): Product[] {
         }),
     }));
 
-  return [...base, ...extraProds];
+  // 2. Append extra variants — search both static and extra products
+  const allProducts = [...base, ...extraProds];
+  for (const ev of storeData.extraVariants) {
+    if (hidden.has(ev.id)) continue;
+    const product = allProducts.find((p) => p.slug === ev.productSlug);
+    if (!product) continue;
+    if (product.variants.find((v) => v.id === ev.id)) continue;
+    const override = storeData.variantOverrides[ev.id];
+    product.variants = [
+      ...product.variants,
+      {
+        id: ev.id,
+        color: ev.color,
+        colorHex: ev.colorHex,
+        condition: ev.condition,
+        year: ev.year,
+        price: override?.price ?? ev.price,
+        priceNum: override?.priceNum ?? ev.priceNum,
+        stock: override?.stock ?? ev.stock,
+        image: resolveImage(ev.image),
+      },
+    ];
+  }
+
+  return allProducts;
 }
 
 interface ProductStoreValue {
