@@ -153,10 +153,11 @@ function PortalModal({ title, subtitle, onClose, children }: {
 }
 
 // ─── Inline Add Variant Form ───────────────────────────────────────────────────
-function InlineAddVariant({ productSlug, onDone }: {
-  productSlug: string; onDone: (msg: string) => void;
+function InlineAddVariant({ productSlug, addExtraVariant, onDone }: {
+  productSlug: string;
+  addExtraVariant: (v: ExtraVariant) => void;
+  onDone: (msg: string) => void;
 }) {
-  const { addExtraVariant } = useProductStore();
   const [color, setColor] = useState("");
   const [colorHex, setColorHex] = useState("#888888");
   const [condition, setCondition] = useState<ConditionGrade>("Unopened");
@@ -177,7 +178,7 @@ function InlineAddVariant({ productSlug, onDone }: {
     else setPriceErr("");
     if (!ok) return;
 
-    addExtraVariant({
+    const newVariant: ExtraVariant = {
       id: genId(),
       productSlug,
       color: color.trim(),
@@ -188,7 +189,9 @@ function InlineAddVariant({ productSlug, onDone }: {
       priceNum: pNum,
       stock,
       image,
-    });
+    };
+    console.log("[TamBebe Admin] Varyant kaydediliyor:", newVariant);
+    addExtraVariant(newVariant);
     onDone(`"${color.trim()}" varyantı eklendi ✓`);
   }
 
@@ -492,7 +495,7 @@ function ProductCard({ product, isExtra, onDelete, onToast }: {
 }) {
   const [open, setOpen] = useState(false);
   const [adding, setAdding] = useState(false);
-  const { updateVariant, deleteExtraVariant, hideVariant, unhideVariant, storeData } = useProductStore();
+  const { updateVariant, addExtraVariant, deleteExtraVariant, hideVariant, unhideVariant, storeData } = useProductStore();
 
   const extraIds = useMemo(() => new Set(storeData.extraVariants.map(ev => ev.id)), [storeData]);
   const inStock = product.variants.filter(v => v.stock > 0).length;
@@ -592,6 +595,7 @@ function ProductCard({ product, isExtra, onDelete, onToast }: {
           {adding && (
             <InlineAddVariant
               productSlug={product.slug}
+              addExtraVariant={addExtraVariant}
               onDone={msg => { setAdding(false); if (msg) onToast(msg); }}
             />
           )}
