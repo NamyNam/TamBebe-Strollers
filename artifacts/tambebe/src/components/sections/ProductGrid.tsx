@@ -1,15 +1,18 @@
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { ArrowRight, ShieldCheck } from "lucide-react";
-import { products } from "@/data/products";
+import { conditionMeta } from "@/data/products";
+import type { Product } from "@/data/products";
+import { useProductStore } from "@/contexts/ProductStore";
 
-const conditionDot: Record<string, string> = {
-  "Like New": "#65a6db",
-  "Excellent": "#f6ab78",
-  "Very Good": "#f6ab78",
-};
+function getBestVariant(product: Product) {
+  const inStock = product.variants.filter((v) => v.stock > 0);
+  const pool = inStock.length > 0 ? inStock : product.variants;
+  return pool.sort((a, b) => a.priceNum - b.priceNum)[0];
+}
 
 export function ProductGrid() {
+  const { products } = useProductStore();
   const featured = products.slice(0, 3);
 
   return (
@@ -40,67 +43,74 @@ export function ProductGrid() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
-          {featured.map((product, index) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <Link
-                href={`/strollers/${product.slug}`}
-                className="group rounded-2xl bg-white border-2 border-border overflow-hidden flex flex-col cursor-pointer transition-all hover:shadow-lg hover:border-transparent block"
-                data-testid={`card-product-${product.slug}`}
+          {featured.map((product, index) => {
+            const variant = getBestVariant(product);
+            if (!variant) return null;
+            const cm = conditionMeta[variant.condition];
+            const oos = variant.stock === 0;
+
+            return (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <div className="relative bg-gray-50 aspect-[4/3] flex items-center justify-center overflow-hidden p-6">
-                  <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-                    <span
-                      className="inline-flex items-center gap-1 text-xs font-black px-2.5 py-1 rounded-full"
-                      style={{ backgroundColor: "#65a6db", color: "white" }}
-                    >
-                      <ShieldCheck className="w-3 h-3" /> Sertifikalı
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full bg-white border border-border">
+                <Link
+                  href={`/strollers/${product.slug}?v=${variant.id}`}
+                  className="group rounded-2xl bg-white border-2 border-border overflow-hidden flex flex-col cursor-pointer transition-all hover:shadow-lg hover:border-transparent block"
+                  data-testid={`card-product-${product.slug}`}
+                >
+                  <div className="relative bg-gray-50 aspect-[4/3] flex items-center justify-center overflow-hidden p-6">
+                    <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
                       <span
-                        className="w-1.5 h-1.5 rounded-full inline-block"
-                        style={{ backgroundColor: conditionDot[product.condition] }}
-                      />
-                      {product.condition}
-                    </span>
-                  </div>
-                  <img
-                    src={product.image}
-                    alt={`${product.brand} ${product.model}`}
-                    className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
-                    data-testid={`img-product-${product.slug}`}
-                  />
-                </div>
-                <div className="p-5 flex flex-col flex-1">
-                  <div className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-1">{product.brand}</div>
-                  <h3 className="text-xl font-black mb-3 text-foreground">{product.model}</h3>
-                  <div className="mt-auto flex items-center justify-between">
-                    <div>
-                      <div
-                        className="text-2xl font-black"
-                        style={{ color: "#f6ab78" }}
-                        data-testid={`text-price-${product.slug}`}
+                        className="inline-flex items-center gap-1 text-xs font-black px-2.5 py-1 rounded-full"
+                        style={{ backgroundColor: "#65a6db", color: "white" }}
                       >
-                        {product.price}
-                      </div>
-                      <div className="text-xs text-muted-foreground line-through font-semibold">Perakende {product.retailPrice}</div>
+                        <ShieldCheck className="w-3 h-3" /> Sertifikalı
+                      </span>
+                      <span
+                        className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full"
+                        style={{ backgroundColor: cm.bg, color: cm.color }}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: cm.color }} />
+                        {cm.label}
+                      </span>
                     </div>
-                    <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
-                      style={{ backgroundColor: "#65a6db15", color: "#65a6db" }}
-                    >
-                      <ArrowRight className="w-5 h-5" />
+                    <img
+                      src={variant.image}
+                      alt={`${product.brand} ${product.model}`}
+                      className={`w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 ${oos ? "opacity-50 grayscale" : ""}`}
+                      data-testid={`img-product-${product.slug}`}
+                    />
+                  </div>
+                  <div className="p-5 flex flex-col flex-1">
+                    <div className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-1">{product.brand}</div>
+                    <h3 className="text-xl font-black mb-3 text-foreground">{product.model}</h3>
+                    <div className="mt-auto flex items-center justify-between">
+                      <div>
+                        <div
+                          className="text-2xl font-black"
+                          style={{ color: oos ? "#9ca3af" : "#f6ab78" }}
+                          data-testid={`text-price-${product.slug}`}
+                        >
+                          {variant.price}
+                        </div>
+                        <div className="text-xs text-muted-foreground line-through font-semibold">Perakende {product.retailPrice}</div>
+                      </div>
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
+                        style={{ backgroundColor: "#65a6db15", color: "#65a6db" }}
+                      >
+                        <ArrowRight className="w-5 h-5" />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
+                </Link>
+              </motion.div>
+            );
+          })}
         </div>
 
         <div className="mt-10 text-center">

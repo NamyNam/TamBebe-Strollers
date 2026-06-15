@@ -3,6 +3,15 @@
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
 
+@layer utilities {
+  .field {
+    @apply w-full px-3 py-2 rounded-xl border-2 border-border text-sm font-semibold outline-none transition-colors focus:border-[#65a6db] bg-white;
+  }
+  .field-label {
+    @apply block text-xs font-black uppercase tracking-widest text-muted-foreground mb-1;
+  }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
