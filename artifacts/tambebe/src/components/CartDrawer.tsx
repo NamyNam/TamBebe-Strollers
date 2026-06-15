@@ -34,7 +34,7 @@ export function CartDrawer() {
               <div className="flex items-center gap-2.5">
                 <ShoppingBag className="w-5 h-5" style={{ color: "#65a6db" }} />
                 <h2 className="font-black text-lg text-foreground">
-                  Your Cart
+                  Sepetiniz
                   {totalItems > 0 && (
                     <span
                       className="ml-2 text-sm font-black rounded-full px-2 py-0.5"
@@ -49,7 +49,7 @@ export function CartDrawer() {
                 onClick={closeCart}
                 className="p-2 rounded-xl hover:bg-muted transition-colors"
                 data-testid="button-close-cart"
-                aria-label="Close cart"
+                aria-label="Sepeti kapat"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -65,8 +65,8 @@ export function CartDrawer() {
                     <ShoppingBag className="w-8 h-8" style={{ color: "#65a6db" }} />
                   </div>
                   <div>
-                    <p className="font-black text-foreground text-base mb-1">Your cart is empty</p>
-                    <p className="text-sm text-muted-foreground font-medium">Find a certified stroller you love.</p>
+                    <p className="font-black text-foreground text-base mb-1">Sepetiniz boş</p>
+                    <p className="text-sm text-muted-foreground font-medium">Sevdiğiniz sertifikalı bir bebek arabası bulun.</p>
                   </div>
                   <button
                     onClick={closeCart}
@@ -74,7 +74,7 @@ export function CartDrawer() {
                     style={{ backgroundColor: "#65a6db" }}
                     data-testid="button-continue-shopping"
                   >
-                    Browse Strollers
+                    Arabalara Göz At
                   </button>
                 </div>
               ) : (
@@ -122,7 +122,7 @@ export function CartDrawer() {
                           onClick={() => removeItem(item.variantId)}
                           className="p-2 rounded-xl hover:bg-red-50 text-muted-foreground hover:text-red-500 transition-colors self-start shrink-0"
                           data-testid={`button-remove-${item.variantId}`}
-                          aria-label="Remove item"
+                          aria-label="Ürünü kaldır"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -141,25 +141,25 @@ export function CartDrawer() {
                 >
                   <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: "#65a6db" }} />
                   <span className="text-muted-foreground">
-                    All items are TamBebe certified with a 6-month mechanical warranty.
+                    Tüm ürünler 6 aylık mekanik garantiyle TamBebe sertifikalıdır.
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-muted-foreground text-sm">Subtotal</span>
+                  <span className="font-semibold text-muted-foreground text-sm">Ara Toplam</span>
                   <span className="text-2xl font-black text-foreground">€{totalPrice.toLocaleString()}</span>
                 </div>
                 <p className="text-xs text-muted-foreground font-medium -mt-2">
-                  Shipping and delivery details confirmed at checkout.
+                  Kargo ve teslimat detayları ödeme sırasında onaylanacaktır.
                 </p>
 
                 <button
                   className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-base transition-all hover:opacity-90"
                   style={{ backgroundColor: "#f6ab78", color: "#252d3a" }}
                   data-testid="button-checkout"
-                  onClick={() => alert("Checkout coming soon! We'll contact you to complete your order.")}
+                  onClick={() => alert("Ödeme yakında! Siparişinizi tamamlamak için sizi arayacağız.")}
                 >
-                  Proceed to Checkout
+                  Ödemeye Geç
                   <ArrowRight className="w-5 h-5" />
                 </button>
 
@@ -168,7 +168,7 @@ export function CartDrawer() {
                   className="w-full text-center text-xs font-bold text-muted-foreground hover:text-foreground transition-colors py-1"
                   data-testid="button-clear-cart"
                 >
-                  Clear cart
+                  Sepeti temizle
                 </button>
               </div>
             )}

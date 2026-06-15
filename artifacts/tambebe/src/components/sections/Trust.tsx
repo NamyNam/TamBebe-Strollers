@@ -2,10 +2,10 @@ import { motion } from "framer-motion";
 import { Shield, Award, Clock, Truck } from "lucide-react";
 
 const stats = [
-  { icon: Shield, label: "Safety First", value: "24-Point", sub: "inspection on every stroller" },
-  { icon: Award, label: "Hospital-Grade Clean", value: "99.9%", sub: "bacteria eliminated at 160°C" },
-  { icon: Clock, label: "Warranty Included", value: "6 Months", sub: "mechanical guarantee" },
-  { icon: Truck, label: "Fast Delivery", value: "2–4 Days", sub: "fully assembled to your door" },
+  { icon: Shield, label: "Önce Güvenlik", value: "24 Nokta", sub: "her arabada kapsamlı denetim" },
+  { icon: Award, label: "Hastane Kalitesinde Temizlik", value: "%99,9", sub: "160°C'de bakteri yok edilir" },
+  { icon: Clock, label: "Garanti Dahil", value: "6 Ay", sub: "mekanik güvence" },
+  { icon: Truck, label: "Hızlı Teslimat", value: "2–4 Gün", sub: "kapınıza tam monte teslim" },
 ];
 
 export function Trust() {

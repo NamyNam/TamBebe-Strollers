@@ -21,25 +21,25 @@ export function Navbar() {
             href="/process"
             className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg"
           >
-            The Process
+            Sürecimiz
           </Link>
           {isHome ? (
             <a href="#faq" className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg">
-              FAQ
+              S.S.S.
             </a>
           ) : (
             <Link href="/#faq" className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg">
-              FAQ
+              S.S.S.
             </Link>
           )}
           <Link href="/" className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg">
-            Sell Your Stroller
+            Araban Sat
           </Link>
 
           <button
             onClick={openCart}
             className="relative ml-1 p-2.5 rounded-xl hover:bg-muted transition-colors"
-            aria-label="Open cart"
+            aria-label="Sepeti aç"
             data-testid="button-open-cart"
           >
             <ShoppingCart className="w-5 h-5 text-foreground" />
@@ -60,7 +60,7 @@ export function Navbar() {
             style={{ backgroundColor: "#65a6db" }}
             data-testid="nav-shop"
           >
-            Shop Strollers
+            Arabalara Göz At
           </Link>
         </nav>
 
@@ -68,7 +68,7 @@ export function Navbar() {
           <button
             onClick={openCart}
             className="relative p-2 rounded-lg hover:bg-muted transition-colors"
-            aria-label="Open cart"
+            aria-label="Sepeti aç"
           >
             <ShoppingCart className="w-5 h-5" />
             {totalItems > 0 && (
@@ -84,7 +84,7 @@ export function Navbar() {
             className="p-2 rounded-lg hover:bg-muted transition-colors"
             onClick={() => setOpen(!open)}
             data-testid="button-mobile-menu"
-            aria-label="Toggle menu"
+            aria-label="Menüyü aç/kapat"
           >
             {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -93,16 +93,16 @@ export function Navbar() {
 
       {open && (
         <div className="md:hidden border-t border-border bg-white px-4 pb-4 pt-2 flex flex-col gap-1">
-          <Link href="/process" onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-muted">The Process</Link>
-          <a href={isHome ? "#faq" : "/#faq"} onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-muted">FAQ</a>
-          <Link href="/" onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-muted">Sell Your Stroller</Link>
+          <Link href="/process" onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-muted">Sürecimiz</Link>
+          <a href={isHome ? "#faq" : "/#faq"} onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-muted">S.S.S.</a>
+          <Link href="/" onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-muted">Araban Sat</Link>
           <Link
             href="/shop"
             onClick={() => setOpen(false)}
             className="mt-1 px-4 py-2.5 rounded-full text-sm font-black text-white text-center"
             style={{ backgroundColor: "#65a6db" }}
           >
-            Shop Strollers
+            Arabalara Göz At
           </Link>
         </div>
       )}

@@ -12,9 +12,9 @@ import { Navbar } from "@/components/Navbar";
 import { useCart } from "@/contexts/CartContext";
 
 const stockLabel = (stock: number) => {
-  if (stock === 0) return { text: "Out of stock", color: "#ef4444" };
-  if (stock === 1) return { text: "Last one!", color: "#d97706" };
-  return { text: `${stock} in stock`, color: "#059669" };
+  if (stock === 0) return { text: "Stokta yok", color: "#ef4444" };
+  if (stock === 1) return { text: "Son adet!", color: "#d97706" };
+  return { text: `${stock} adet stokta`, color: "#059669" };
 };
 
 function getConditionSummaries(product: Product) {
@@ -123,8 +123,8 @@ export default function ProductDetail() {
   if (!product || !selectedVariant) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <p className="text-xl font-black">Stroller not found.</p>
-        <Link href="/shop" className="px-6 py-2.5 rounded-full text-sm font-black text-white" style={{ backgroundColor: "#65a6db" }}>Back to shop</Link>
+        <p className="text-xl font-black">Bebek arabası bulunamadı.</p>
+        <Link href="/shop" className="px-6 py-2.5 rounded-full text-sm font-black text-white" style={{ backgroundColor: "#65a6db" }}>Mağazaya Dön</Link>
       </div>
     );
   }
@@ -141,7 +141,7 @@ export default function ProductDetail() {
       <nav className="py-3 border-b border-border bg-white">
         <div className="container mx-auto px-4 md:px-6 flex items-center gap-2 text-sm text-muted-foreground">
           <Link href="/shop" className="inline-flex items-center gap-1.5 font-semibold hover:text-foreground transition-colors">
-            <ArrowLeft className="w-3.5 h-3.5" /> Shop
+            <ArrowLeft className="w-3.5 h-3.5" /> Mağaza
           </Link>
           <span>/</span>
           <span className="font-bold text-foreground">{product.brand} {product.model}</span>
@@ -152,15 +152,15 @@ export default function ProductDetail() {
         <div className="container mx-auto px-4 md:px-6 py-6 md:py-10">
           <div className="grid md:grid-cols-2 gap-8 lg:gap-14">
 
-            {/* Image */}
+            {/* Ürün resmi */}
             <motion.div key={selectedVariant.id + "-img"} initial={{ opacity: 0.7 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>
               <div className="sticky top-20 rounded-3xl bg-gray-50 border border-border overflow-hidden aspect-square flex items-center justify-center p-8 relative">
                 <div className="absolute top-4 left-4 flex items-center gap-2">
                   <span className="inline-flex items-center gap-1 text-xs font-black rounded-full px-2.5 py-1 text-white" style={{ backgroundColor: "#65a6db" }}>
-                    <ShieldCheck className="w-3 h-3" /> Certified
+                    <ShieldCheck className="w-3 h-3" /> Sertifikalı
                   </span>
                   <span className="text-xs font-black rounded-full px-2.5 py-1" style={{ backgroundColor: cm.bg, color: cm.color }}>
-                    {selectedVariant.condition}
+                    {cm.label}
                   </span>
                 </div>
                 <img
@@ -172,10 +172,10 @@ export default function ProductDetail() {
               </div>
             </motion.div>
 
-            {/* Details */}
+            {/* Detaylar */}
             <div className="flex flex-col gap-5">
 
-              {/* Title + price */}
+              {/* Başlık + fiyat */}
               <div>
                 <p className="text-xs font-black uppercase tracking-widest mb-1" style={{ color: "#65a6db" }}>{product.brand}</p>
                 <h1 className="text-3xl md:text-4xl font-black tracking-tight text-foreground mb-3">{product.model}</h1>
@@ -185,15 +185,15 @@ export default function ProductDetail() {
                     <span className="text-3xl font-black" style={{ color: outOfStock ? "#9ca3af" : "#f6ab78" }} data-testid="text-price">
                       {selectedVariant.price}
                     </span>
-                    <span className="text-sm text-muted-foreground line-through font-semibold">Retail {product.retailPrice}</span>
+                    <span className="text-sm text-muted-foreground line-through font-semibold">Perakende {product.retailPrice}</span>
                     <span className="text-xs font-bold" style={{ color: sl.color }}>· {sl.text}</span>
                   </motion.div>
                 </AnimatePresence>
               </div>
 
-              {/* ── 1. Condition selector ── */}
+              {/* ── 1. Durum seçici ── */}
               <div>
-                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground block mb-2">Condition</span>
+                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground block mb-2">Durum</span>
                 <div className="flex flex-col gap-1.5">
                   {conditionSummaries.map(({ condition, hasStock, lowestPrice }) => {
                     const meta = conditionMeta[condition];
@@ -208,13 +208,13 @@ export default function ProductDetail() {
                       >
                         <div className="flex items-center gap-2.5">
                           <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: meta.color }} />
-                          <span className="text-sm font-black text-foreground">{condition}</span>
+                          <span className="text-sm font-black text-foreground">{meta.label}</span>
                           {isSelected && <Check className="w-3.5 h-3.5 shrink-0" style={{ color: meta.color }} />}
                         </div>
-                        <div className="flex items-center gap-2 ml-3 shrink-0">
-                          <span className="text-xs text-muted-foreground font-medium">{hasStock ? "From" : ""}</span>
+                        <div className="flex items-center gap-1.5 ml-3 shrink-0">
+                          {hasStock && <span className="text-xs text-muted-foreground font-medium">Başlangıç</span>}
                           <span className="text-sm font-black" style={{ color: hasStock ? "#f6ab78" : "#9ca3af" }}>€{lowestPrice}</span>
-                          {!hasStock && <span className="text-xs font-semibold text-red-400">None</span>}
+                          {!hasStock && <span className="text-xs font-semibold text-red-400">Yok</span>}
                         </div>
                       </button>
                     );
@@ -223,15 +223,15 @@ export default function ProductDetail() {
                 <AnimatePresence mode="wait">
                   <motion.p key={selectedCondition + "-desc"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
                     className="mt-2 text-xs text-muted-foreground font-medium pl-1">
-                    <span className="font-bold" style={{ color: cm.color }}>{selectedCondition}:</span> {cm.description}
+                    <span className="font-bold" style={{ color: cm.color }}>{cm.label}:</span> {cm.description}
                   </motion.p>
                 </AnimatePresence>
               </div>
 
-              {/* ── 2. Color selector ── */}
+              {/* ── 2. Renk seçici ── */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">Color</span>
+                  <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">Renk</span>
                   <AnimatePresence mode="wait">
                     <motion.span key={selectedColor} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                       className="text-xs font-bold text-foreground">
@@ -246,7 +246,7 @@ export default function ProductDetail() {
                       const isSelected = color === selectedColor;
                       const oos = stock === 0;
                       return (
-                        <button key={color} onClick={() => pickColor(color)} title={`${color}${oos ? " – Out of stock" : ""}`}
+                        <button key={color} onClick={() => pickColor(color)} title={`${color}${oos ? " – Stokta yok" : ""}`}
                           className={`w-9 h-9 rounded-full border-2 transition-all ${isSelected ? "scale-110" : oos ? "opacity-30 cursor-not-allowed" : "opacity-60 hover:opacity-90"}`}
                           style={{
                             backgroundColor: colorHex,
@@ -267,15 +267,15 @@ export default function ProductDetail() {
                 )}
               </div>
 
-              {/* CTAs */}
+              {/* Butonlar */}
               <div className="flex gap-3">
                 {outOfStock ? (
                   <button disabled className="flex-1 flex items-center justify-center gap-2 py-3 px-5 rounded-full font-black text-sm bg-gray-100 text-gray-400 cursor-not-allowed" data-testid="button-out-of-stock">
-                    <AlertTriangle className="w-4 h-4" /> Out of Stock
+                    <AlertTriangle className="w-4 h-4" /> Stokta Yok
                   </button>
                 ) : inCart ? (
                   <button disabled className="flex-1 flex items-center justify-center gap-2 py-3 px-5 rounded-full font-black text-sm" style={{ backgroundColor: "#ecfdf5", color: "#059669" }} data-testid="button-in-cart">
-                    <Check className="w-4 h-4" /> In Cart
+                    <Check className="w-4 h-4" /> Sepette
                   </button>
                 ) : (
                   <button onClick={() => addItem(product, selectedVariant)}
@@ -283,7 +283,7 @@ export default function ProductDetail() {
                     style={{ backgroundColor: "#f6ab78", color: "#252d3a" }}
                     data-testid="button-add-to-cart"
                   >
-                    <ShoppingCart className="w-4 h-4" /> Add to Cart
+                    <ShoppingCart className="w-4 h-4" /> Sepete Ekle
                   </button>
                 )}
                 <a href="mailto:hello@tambebe.com"
@@ -291,19 +291,19 @@ export default function ProductDetail() {
                   style={{ borderColor: "#65a6db", color: "#65a6db" }}
                   data-testid="button-inquire"
                 >
-                  Ask a Question
+                  Soru Sor
                 </a>
               </div>
 
-              {/* Specs */}
+              {/* Özellikler */}
               <div className="grid grid-cols-2 gap-x-6 gap-y-2.5 py-4 border-t border-b border-border">
                 {([
-                  ["Year", selectedVariant.year],
-                  ["Weight", product.weight],
-                  ["Fold", product.foldType],
-                  ["Seat positions", product.seatPositions],
-                  ["Max child weight", product.maxChildWeight],
-                  ["Color", selectedVariant.color.split(" (")[0]],
+                  ["Yıl", selectedVariant.year],
+                  ["Ağırlık", product.weight],
+                  ["Katlama", product.foldType],
+                  ["Oturma pozisyonları", product.seatPositions],
+                  ["Maks. çocuk ağırlığı", product.maxChildWeight],
+                  ["Renk", selectedVariant.color.split(" (")[0]],
                 ] as [string, string][]).map(([label, value]) => (
                   <div key={label}>
                     <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-0.5">{label}</p>
@@ -312,9 +312,9 @@ export default function ProductDetail() {
                 ))}
               </div>
 
-              {/* Accordions */}
+              {/* Akordeonlar */}
               <div className="space-y-2">
-                <Accordion title="Renewal checklist" icon={<ShieldCheck className="w-4 h-4" style={{ color: "#65a6db" }} />} count={product.renewalChecks.length}>
+                <Accordion title="Yenileme kontrol listesi" icon={<ShieldCheck className="w-4 h-4" style={{ color: "#65a6db" }} />} count={product.renewalChecks.length}>
                   <ul className="space-y-2">
                     {product.renewalChecks.map((check) => (
                       <li key={check} className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -324,7 +324,7 @@ export default function ProductDetail() {
                     ))}
                   </ul>
                 </Accordion>
-                <Accordion title="What's included" icon={<Package className="w-4 h-4" style={{ color: "#f6ab78" }} />} count={product.included.length}>
+                <Accordion title="Neler dahil" icon={<Package className="w-4 h-4" style={{ color: "#f6ab78" }} />} count={product.included.length}>
                   <ul className="space-y-1.5">
                     {product.included.map((item) => (
                       <li key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -336,7 +336,7 @@ export default function ProductDetail() {
                 </Accordion>
               </div>
 
-              {/* Highlights */}
+              {/* Öne çıkan özellikler */}
               <div className="flex flex-wrap gap-2 pb-2">
                 {product.highlights.map((h, i) => (
                   <span key={h} className="text-xs font-bold rounded-full px-3 py-1"

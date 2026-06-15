@@ -9,18 +9,26 @@ import { Navbar } from "@/components/Navbar";
 
 type SortOption = "price-asc" | "price-desc" | "newest";
 
-const ALL_BRANDS = ["All", ...Array.from(new Set(products.map((p) => p.brand)))];
-const ALL_CONDITIONS: ("All" | ConditionGrade)[] = ["All", "Unopened", "Open Box", "Barely Used", "Gently Used"];
+const ALL_BRANDS = ["Tümü", ...Array.from(new Set(products.map((p) => p.brand)))];
+const ALL_CONDITIONS: ("Tümü" | ConditionGrade)[] = ["Tümü", "Unopened", "Open Box", "Barely Used", "Gently Used"];
+
+const conditionTR: Record<string, string> = {
+  "Tümü": "Tümü",
+  "Unopened": "Açılmamış",
+  "Open Box": "Açık Kutu",
+  "Barely Used": "Neredeyse Hiç Kullanılmamış",
+  "Gently Used": "Az Kullanılmış",
+};
 
 const sortLabels: Record<SortOption, string> = {
-  "price-asc": "Price: Low to High",
-  "price-desc": "Price: High to Low",
-  "newest": "Newest First",
+  "price-asc": "Fiyat: Düşükten Yükseğe",
+  "price-desc": "Fiyat: Yüksekten Düşüğe",
+  "newest": "En Yeni",
 };
 
 export default function Inventory() {
-  const [brand, setBrand] = useState("All");
-  const [condition, setCondition] = useState<"All" | ConditionGrade>("All");
+  const [brand, setBrand] = useState("Tümü");
+  const [condition, setCondition] = useState<"Tümü" | ConditionGrade>("Tümü");
   const [sort, setSort] = useState<SortOption>("newest");
   const [sortOpen, setSortOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -30,8 +38,8 @@ export default function Inventory() {
 
   const filtered = useMemo(() => {
     let list = [...allVariants];
-    if (brand !== "All") list = list.filter((v) => v.product.brand === brand);
-    if (condition !== "All") list = list.filter((v) => v.condition === condition);
+    if (brand !== "Tümü") list = list.filter((v) => v.product.brand === brand);
+    if (condition !== "Tümü") list = list.filter((v) => v.condition === condition);
     if (inStockOnly) list = list.filter((v) => v.stock > 0);
     if (sort === "price-asc") list.sort((a, b) => a.priceNum - b.priceNum);
     if (sort === "price-desc") list.sort((a, b) => b.priceNum - a.priceNum);
@@ -40,13 +48,13 @@ export default function Inventory() {
   }, [allVariants, brand, condition, sort, inStockOnly]);
 
   const activeFilters =
-    (brand !== "All" ? 1 : 0) +
-    (condition !== "All" ? 1 : 0) +
+    (brand !== "Tümü" ? 1 : 0) +
+    (condition !== "Tümü" ? 1 : 0) +
     (inStockOnly ? 1 : 0);
 
   function clearAll() {
-    setBrand("All");
-    setCondition("All");
+    setBrand("Tümü");
+    setCondition("Tümü");
     setSort("newest");
     setInStockOnly(false);
   }
@@ -58,13 +66,13 @@ export default function Inventory() {
       <div className="py-10 md:py-14" style={{ backgroundColor: "#65a6db" }}>
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex items-center gap-2 text-white/70 text-sm font-semibold mb-3">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
+            <Link href="/" className="hover:text-white transition-colors">Ana Sayfa</Link>
             <span>/</span>
-            <span className="text-white">Shop All Strollers</span>
+            <span className="text-white">Tüm Arabalara Göz At</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-black text-white mb-2">All Certified Strollers</h1>
+          <h1 className="text-3xl md:text-4xl font-black text-white mb-2">Tüm Sertifikalı Bebek Arabaları</h1>
           <p className="text-white/80 font-semibold text-base max-w-xl">
-            Every listing has been steam-cleaned, mechanically tested, and certified. What you see is exactly what you get.
+            Her ilan buharla temizlenmiş, mekanik olarak test edilmiş ve sertifikalandırılmıştır. Gördüğünüz tam olarak alacağınızdır.
           </p>
         </div>
       </div>
@@ -74,21 +82,21 @@ export default function Inventory() {
           <aside className="w-full md:w-60 shrink-0">
             <div className="md:sticky md:top-24">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-black text-foreground text-base">Filters</h2>
+                <h2 className="font-black text-foreground text-base">Filtreler</h2>
                 {activeFilters > 0 && (
                   <button
                     onClick={clearAll}
                     className="text-xs font-bold flex items-center gap-1"
                     style={{ color: "#65a6db" }}
                   >
-                    <X className="w-3 h-3" /> Clear all
+                    <X className="w-3 h-3" /> Tümünü temizle
                   </button>
                 )}
               </div>
 
               <div className="hidden md:block space-y-6">
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-3">Brand</h3>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-3">Marka</h3>
                   <div className="flex flex-col gap-1.5">
                     {ALL_BRANDS.map((b) => (
                       <button
@@ -104,10 +112,10 @@ export default function Inventory() {
                 </div>
 
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-3">Condition</h3>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-3">Durum</h3>
                   <div className="flex flex-col gap-1.5">
                     {ALL_CONDITIONS.map((c) => {
-                      const meta = c !== "All" ? conditionMeta[c] : null;
+                      const meta = c !== "Tümü" ? conditionMeta[c] : null;
                       const isActive = condition === c;
                       return (
                         <button
@@ -127,7 +135,7 @@ export default function Inventory() {
                               style={{ backgroundColor: isActive ? "white" : meta.color }}
                             />
                           )}
-                          {c}
+                          {conditionTR[c]}
                         </button>
                       );
                     })}
@@ -135,7 +143,7 @@ export default function Inventory() {
                 </div>
 
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-3">Availability</h3>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-3">Stok Durumu</h3>
                   <label className="flex items-center gap-3 cursor-pointer px-3 py-2 rounded-xl hover:bg-muted transition-colors">
                     <div
                       className={`w-10 h-6 rounded-full transition-all relative ${inStockOnly ? "bg-green-500" : "bg-gray-200"}`}
@@ -145,7 +153,7 @@ export default function Inventory() {
                         className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${inStockOnly ? "left-5" : "left-1"}`}
                       />
                     </div>
-                    <span className="text-sm font-bold text-foreground">In stock only</span>
+                    <span className="text-sm font-bold text-foreground">Yalnızca stokta olanlar</span>
                   </label>
                 </div>
 
@@ -155,7 +163,7 @@ export default function Inventory() {
                     style={{ backgroundColor: "#65a6db10", color: "#3d7fb5" }}
                   >
                     <ShieldCheck className="w-4 h-4 shrink-0" />
-                    All items TamBebe certified
+                    Tüm ürünler TamBebe sertifikalı
                   </div>
                 </div>
               </div>
@@ -168,14 +176,14 @@ export default function Inventory() {
                 >
                   <span className="flex items-center gap-2">
                     <SlidersHorizontal className="w-4 h-4" />
-                    Filters {activeFilters > 0 && `(${activeFilters})`}
+                    Filtreler {activeFilters > 0 && `(${activeFilters})`}
                   </span>
                   <ChevronDown className={`w-4 h-4 transition-transform ${filtersOpen ? "rotate-180" : ""}`} />
                 </button>
                 {filtersOpen && (
                   <div className="mt-3 p-4 border border-border rounded-2xl bg-white space-y-5">
                     <div>
-                      <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">Brand</h3>
+                      <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">Marka</h3>
                       <div className="flex flex-wrap gap-2">
                         {ALL_BRANDS.map((b) => (
                           <button key={b} onClick={() => setBrand(b)}
@@ -187,20 +195,20 @@ export default function Inventory() {
                       </div>
                     </div>
                     <div>
-                      <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">Condition</h3>
+                      <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">Durum</h3>
                       <div className="flex flex-wrap gap-2">
                         {ALL_CONDITIONS.map((c) => (
                           <button key={c} onClick={() => setCondition(c)}
                             className="text-xs font-black px-3 py-1.5 rounded-full transition-all"
                             style={condition === c ? { backgroundColor: "#f6ab78", color: "#252d3a" } : { backgroundColor: "#f3f4f6" }}>
-                            {c}
+                            {conditionTR[c]}
                           </button>
                         ))}
                       </div>
                     </div>
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input type="checkbox" checked={inStockOnly} onChange={e => setInStockOnly(e.target.checked)} className="rounded" />
-                      <span className="text-sm font-bold">In stock only</span>
+                      <span className="text-sm font-bold">Yalnızca stokta olanlar</span>
                     </label>
                   </div>
                 )}
@@ -212,7 +220,7 @@ export default function Inventory() {
             <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
               <p className="text-sm font-bold text-muted-foreground">
                 <span className="font-black text-foreground text-base">{filtered.length}</span>{" "}
-                listing{filtered.length !== 1 ? "s" : ""} available
+                ilan mevcut
               </p>
               <div className="relative">
                 <button
@@ -223,7 +231,7 @@ export default function Inventory() {
                   <ChevronDown className={`w-4 h-4 transition-transform ${sortOpen ? "rotate-180" : ""}`} />
                 </button>
                 {sortOpen && (
-                  <div className="absolute right-0 top-full mt-1.5 bg-white border border-border rounded-2xl shadow-lg overflow-hidden z-20 min-w-48">
+                  <div className="absolute right-0 top-full mt-1.5 bg-white border border-border rounded-2xl shadow-lg overflow-hidden z-20 min-w-52">
                     {(Object.keys(sortLabels) as SortOption[]).map((key) => (
                       <button key={key} onClick={() => { setSort(key); setSortOpen(false); }}
                         className={`w-full text-left px-4 py-3 text-sm font-bold hover:bg-muted transition-colors ${sort === key ? "text-white" : "text-foreground"}`}
@@ -238,21 +246,21 @@ export default function Inventory() {
 
             {activeFilters > 0 && (
               <div className="flex flex-wrap gap-2 mb-5">
-                {brand !== "All" && (
+                {brand !== "Tümü" && (
                   <span className="inline-flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full" style={{ backgroundColor: "#65a6db20", color: "#3d7fb5" }}>
-                    Brand: {brand}
-                    <button onClick={() => setBrand("All")}><X className="w-3 h-3" /></button>
+                    Marka: {brand}
+                    <button onClick={() => setBrand("Tümü")}><X className="w-3 h-3" /></button>
                   </span>
                 )}
-                {condition !== "All" && (
+                {condition !== "Tümü" && (
                   <span className="inline-flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full" style={{ backgroundColor: "#f6ab7820", color: "#b8712a" }}>
-                    Condition: {condition}
-                    <button onClick={() => setCondition("All")}><X className="w-3 h-3" /></button>
+                    Durum: {conditionTR[condition]}
+                    <button onClick={() => setCondition("Tümü")}><X className="w-3 h-3" /></button>
                   </span>
                 )}
                 {inStockOnly && (
                   <span className="inline-flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full bg-green-100 text-green-700">
-                    In stock only
+                    Yalnızca stokta
                     <button onClick={() => setInStockOnly(false)}><X className="w-3 h-3" /></button>
                   </span>
                 )}
@@ -266,12 +274,12 @@ export default function Inventory() {
                   <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: "#65a6db15" }}>
                     <ShieldCheck className="w-8 h-8" style={{ color: "#65a6db" }} />
                   </div>
-                  <h3 className="text-xl font-black text-foreground mb-2">No listings match</h3>
+                  <h3 className="text-xl font-black text-foreground mb-2">Eşleşen ilan yok</h3>
                   <p className="text-muted-foreground font-medium text-sm mb-6 max-w-xs">
-                    Try adjusting your filters — new certified stock arrives weekly.
+                    Filtrelerinizi ayarlamayı deneyin — her hafta yeni sertifikalı stok geliyor.
                   </p>
                   <button onClick={clearAll} className="px-6 py-2.5 rounded-full text-sm font-black text-white" style={{ backgroundColor: "#65a6db" }}>
-                    Clear filters
+                    Filtreleri temizle
                   </button>
                 </motion.div>
               ) : (
@@ -290,15 +298,15 @@ export default function Inventory() {
                           <div className="relative bg-gray-50 aspect-[4/3] flex items-center justify-center overflow-hidden p-6">
                             <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
                               <span className="inline-flex items-center gap-1 text-xs font-black px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "#65a6db" }}>
-                                <ShieldCheck className="w-3 h-3" /> Certified
+                                <ShieldCheck className="w-3 h-3" /> Sertifikalı
                               </span>
                               <span className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full" style={{ backgroundColor: meta.bg, color: meta.color }}>
                                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: meta.color }} />
-                                {v.condition}
+                                {conditionTR[v.condition]}
                               </span>
                               {oos && (
                                 <span className="inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-600">
-                                  Out of Stock
+                                  Stokta Yok
                                 </span>
                               )}
                             </div>
@@ -324,7 +332,7 @@ export default function Inventory() {
                                 <div className="text-xl font-black" style={{ color: oos ? "#9ca3af" : "#f6ab78" }}>
                                   {v.price}
                                 </div>
-                                <div className="text-xs text-muted-foreground line-through font-semibold">Retail {v.product.retailPrice}</div>
+                                <div className="text-xs text-muted-foreground line-through font-semibold">Perakende {v.product.retailPrice}</div>
                               </div>
                               {!oos && (
                                 <div className="w-9 h-9 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform" style={{ backgroundColor: "#65a6db15", color: "#65a6db" }}>
@@ -344,11 +352,11 @@ export default function Inventory() {
             {filtered.length > 0 && (
               <div className="mt-12 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ backgroundColor: "#65a6db15" }}>
                 <div>
-                  <p className="font-black text-foreground text-base">Don't see what you need?</p>
-                  <p className="text-sm text-muted-foreground font-medium">New stock arrives weekly. Get notified first.</p>
+                  <p className="font-black text-foreground text-base">Aradığınızı bulamadınız mı?</p>
+                  <p className="text-sm text-muted-foreground font-medium">Her hafta yeni stok gelir. İlk siz haberdar olun.</p>
                 </div>
                 <a href="#" className="shrink-0 px-6 py-3 rounded-full font-black text-sm transition-opacity hover:opacity-90" style={{ backgroundColor: "#f6ab78", color: "#252d3a" }}>
-                  Notify Me
+                  Beni Haberdar Et
                 </a>
               </div>
             )}

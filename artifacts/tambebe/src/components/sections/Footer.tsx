@@ -11,7 +11,7 @@ export function Footer() {
               TamBebe.
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed mb-6">
-              Professionally renewed, steam-cleaned, and mechanically tested premium second-hand strollers.
+              Profesyonelce yenilenmiş, buharla temizlenmiş ve mekanik olarak test edilmiş premium ikinci el bebek arabaları.
             </p>
             <div className="flex gap-4">
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
@@ -25,44 +25,44 @@ export function Footer() {
               </a>
             </div>
           </div>
-          
+
           <div>
-            <h4 className="font-semibold mb-4">Shop</h4>
+            <h4 className="font-semibold mb-4">Mağaza</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-foreground transition-colors">All Strollers</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">New Arrivals</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Tüm Arabalar</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Yeni Gelenler</a></li>
               <li><a href="#" className="hover:text-foreground transition-colors">Bugaboo</a></li>
               <li><a href="#" className="hover:text-foreground transition-colors">UPPAbaby</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Accessories</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Aksesuarlar</a></li>
             </ul>
           </div>
-          
+
           <div>
-            <h4 className="font-semibold mb-4">About</h4>
+            <h4 className="font-semibold mb-4">Hakkımızda</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-foreground transition-colors">Our Process</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Safety Standards</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Sell Your Stroller</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Reviews</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Sürecimiz</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Güvenlik Standartları</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Arabanı Sat</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Yorumlar</a></li>
             </ul>
           </div>
-          
+
           <div>
-            <h4 className="font-semibold mb-4">Support</h4>
+            <h4 className="font-semibold mb-4">Destek</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-foreground transition-colors">FAQ</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Shipping & Returns</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Warranty</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Contact Us</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">S.S.S.</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Kargo ve İadeler</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Garanti</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Bize Ulaşın</a></li>
             </ul>
           </div>
         </div>
-        
+
         <div className="pt-8 border-t border-card-border flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} TamBebe. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} TamBebe. Tüm hakları saklıdır.</p>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a>
+            <a href="#" className="hover:text-foreground transition-colors">Gizlilik Politikası</a>
+            <a href="#" className="hover:text-foreground transition-colors">Kullanım Şartları</a>
           </div>
         </div>
       </div>

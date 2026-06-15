@@ -5,29 +5,29 @@ const steps = [
   {
     icon: Bath,
     num: "01",
-    title: "Deep Steam Clean",
-    description: "Every fabric is detached, treated with baby-safe organic detergents, and high-pressure steam cleaned at 160°C — eliminating 99.9% of bacteria.",
+    title: "Derin Buhar Temizliği",
+    description: "Tüm kumaşlar sökülerek bebek dostu organik deterjanlarla işleme tabi tutulur ve 160°C'de yüksek basınçlı buharla temizlenir — bakterilerin %99,9'u yok edilir.",
     accent: "#f6ab78",
   },
   {
     icon: Wrench,
     num: "02",
-    title: "Mechanical Inspection",
-    description: "Our technicians test wheels, brakes, folding mechanisms, and suspension. Worn bearings or faulty parts are replaced with original brand parts.",
+    title: "Mekanik İnceleme",
+    description: "Teknisyenlerimiz tekerlekleri, frenleri, katlama mekanizmalarını ve süspansiyonu test eder. Aşınan rulmanlar veya arızalı parçalar orijinal marka parçalarıyla değiştirilir.",
     accent: "#65a6db",
   },
   {
     icon: CheckCircle2,
     num: "03",
-    title: "TamBebe Certification",
-    description: "Only when a stroller feels, moves, and smells perfect does it receive our 'Tam' certification and a detailed condition report.",
+    title: "TamBebe Sertifikasyonu",
+    description: "Bir bebek arabası mükemmel hissettirip hareket edip kokuduğunda ancak 'Tam' sertifikamızı ve ayrıntılı durum raporunu alır.",
     accent: "#f6ab78",
   },
   {
     icon: Heart,
     num: "04",
-    title: "Ready For Your Baby",
-    description: "Delivered fully assembled to your door with a 6-month warranty on all mechanical parts. No surprises — ever.",
+    title: "Bebeğinize Hazır",
+    description: "Tüm mekanik parçalarda 6 aylık garantiyle kapınıza tam monte olarak teslim edilir. Hiçbir sürpriz olmaz — asla.",
     accent: "#65a6db",
   },
 ];
@@ -41,11 +41,11 @@ export function HowItWorks() {
             className="inline-block text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full mb-4"
             style={{ backgroundColor: "#65a6db1a", color: "#65a6db" }}
           >
-            Our Process
+            Sürecimiz
           </div>
-          <h2 className="text-3xl md:text-4xl font-black mb-4 text-foreground">The TamBebe Standard</h2>
+          <h2 className="text-3xl md:text-4xl font-black mb-4 text-foreground">TamBebe Standardı</h2>
           <p className="text-base text-muted-foreground font-medium leading-relaxed">
-            We don't just wash strollers. We renew them. Our 4-step process ensures every stroller is as safe and clean as the day it left the factory.
+            Biz sadece bebek arabalarını yıkamıyoruz. Onları yeniliyoruz. 4 adımlı sürecimiz her arabanın fabrikadan çıktığı gün kadar güvenli ve temiz olmasını sağlar.
           </p>
         </div>
 

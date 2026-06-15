@@ -8,24 +8,24 @@ import {
 
 const faqs = [
   {
-    question: "Is it safe to buy a second-hand stroller?",
-    answer: "Absolutely. We remove the uncertainty by putting every stroller through a 24-point mechanical inspection. We check frame integrity, wheel bearings, suspension, and braking systems. Any worn parts are replaced with authentic brand parts.",
+    question: "İkinci el bebek arabası almak güvenli midir?",
+    answer: "Kesinlikle. Her arabayı 24 noktalı mekanik denetimden geçirerek belirsizliği ortadan kaldırıyoruz. Çerçeve bütünlüğü, tekerlek rulmanları, süspansiyon ve fren sistemlerini kontrol ediyoruz. Aşınan parçalar orijinal marka parçalarıyla değiştirilir.",
   },
   {
-    question: "How do you clean the strollers?",
-    answer: "Our cleaning process is intensive. We fully dismantle the fabrics and treat them with baby-safe, hypoallergenic detergents. Then we use 160°C steam extraction which sanitizes deep into the foam, killing 99.9% of bacteria and removing any stains or odors.",
+    question: "Bebek arabalarını nasıl temizliyorsunuz?",
+    answer: "Temizleme sürecimiz son derece kapsamlıdır. Kumaşları tamamen sökerek bebek dostu, hipoalerjenik deterjanlarla işleme tabi tutuyoruz. Ardından 160°C buhar ekstraksiyonu uyguluyoruz; bu yöntem köpüğün derinliklerine kadar ulaşarak bakterilerin %99,9'unu öldürür ve leke veya kokuları giderir.",
   },
   {
-    question: "What brands do you carry?",
-    answer: "We specialize in premium travel systems built to last multiple lifetimes. Our inventory primarily consists of Bugaboo, UPPAbaby, Nuna, Cybex, and Babyzen.",
+    question: "Hangi markaları satıyorsunuz?",
+    answer: "Birden fazla kullanım ömrüne dayanacak şekilde üretilmiş premium seyahat sistemlerinde uzmanlaşıyoruz. Envanterimiz ağırlıklı olarak Bugaboo, UPPAbaby, Nuna, Cybex ve Babyzen markalarından oluşmaktadır.",
   },
   {
-    question: "What if something breaks?",
-    answer: "Every TamBebe certified stroller comes with a 6-month mechanical warranty. If a folding mechanism, brake, or wheel bearing fails under normal use, we will repair it or replace the part free of charge.",
+    question: "Bir şey bozulursa ne olur?",
+    answer: "Her TamBebe sertifikalı bebek arabası 6 aylık mekanik garanti kapsamındadır. Normal kullanımda katlama mekanizması, fren veya tekerlek rulmanı arızalanırsa ücretsiz onarım veya parça değişimi yapıyoruz.",
   },
   {
-    question: "Can I sell my old stroller to you?",
-    answer: "Yes! If you have a premium brand stroller in good structural condition, we will buy it from you. We handle the pickup, cleaning, and resale.",
+    question: "Eski arabamı size satabilir miyim?",
+    answer: "Evet! İyi yapısal durumda premium markalı bir arabanız varsa onu sizden satın alıyoruz. Teslim almayı, temizlemeyi ve yeniden satışı biz üstleniyoruz.",
   },
 ];
 
@@ -38,11 +38,11 @@ export function FAQ() {
             className="inline-block text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full mb-4"
             style={{ backgroundColor: "#65a6db1a", color: "#65a6db" }}
           >
-            FAQ
+            S.S.S.
           </div>
-          <h2 className="text-3xl md:text-4xl font-black mb-3 text-foreground">Common Questions</h2>
+          <h2 className="text-3xl md:text-4xl font-black mb-3 text-foreground">Sık Sorulan Sorular</h2>
           <p className="text-base text-muted-foreground font-medium">
-            Everything parents ask before buying their first TamBebe stroller.
+            Ebeveynlerin ilk TamBebe arabasını almadan önce sorduğu her şey.
           </p>
         </div>
 

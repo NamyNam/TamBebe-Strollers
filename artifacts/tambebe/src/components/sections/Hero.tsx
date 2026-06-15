@@ -19,17 +19,17 @@ export function Hero() {
               style={{ backgroundColor: "#65a6db1a", color: "#65a6db", border: "1px solid #65a6db40" }}
             >
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Certified Renewed Strollers</span>
+              <span>Sertifikalı Yenilenmiş Bebek Arabaları</span>
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-foreground leading-[1.1] mb-4">
-              Premium strollers.{" "}
-              <span style={{ color: "#f6ab78" }}>Renewed</span>{" "}
-              for your baby.
+              Premium bebek arabaları.{" "}
+              <span style={{ color: "#f6ab78" }}>Yenilenmiş</span>{" "}
+              bebeğin için.
             </h1>
 
             <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-md leading-relaxed font-medium">
-              Every stroller is steam-cleaned at 160°C, mechanically inspected, and certified — so you get a top brand at a fraction of the price.
+              Her bebek arabası 160°C'de buharla temizlenir, mekanik olarak incelenir ve sertifikalandırılır — böylece en iyi markayı çok daha uygun fiyata alırsınız.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
@@ -39,7 +39,7 @@ export function Hero() {
                 style={{ backgroundColor: "#f6ab78", color: "#252d3a" }}
                 data-testid="button-shop-strollers"
               >
-                Shop Strollers
+                Arabalara Göz At
               </Link>
               <Link
                 href="/process"
@@ -47,7 +47,7 @@ export function Hero() {
                 style={{ borderColor: "#65a6db", color: "#65a6db" }}
                 data-testid="button-learn-more"
               >
-                Learn our Process
+                Sürecimizi Keşfet
               </Link>
             </div>
 
@@ -63,14 +63,14 @@ export function Hero() {
                     <Star key={i} className="w-4 h-4 fill-current" style={{ color: "#f6ab78" }} />
                   ))}
                 </div>
-                <span className="text-sm font-semibold text-foreground">500+ happy parents</span>
+                <span className="text-sm font-semibold text-foreground">500'den fazla mutlu ebeveyn</span>
               </div>
               <div
                 className="flex items-center gap-2 text-sm font-semibold px-3 py-1.5 rounded-full"
                 style={{ backgroundColor: "#65a6db1a", color: "#65a6db" }}
               >
                 <ShieldCheck className="w-4 h-4" />
-                6-Month Warranty
+                6 Aylık Garanti
               </div>
             </motion.div>
           </motion.div>
@@ -92,7 +92,7 @@ export function Hero() {
             />
             <img
               src={heroImg}
-              alt="Certified renewed baby stroller"
+              alt="Sertifikalı yenilenmiş bebek arabası"
               className="relative z-10 w-full h-full object-cover object-center rounded-[3rem]"
               style={{ maxHeight: "80vh", margin: "2rem 0 2rem 2rem" }}
               data-testid="img-hero"
@@ -105,8 +105,8 @@ export function Hero() {
                 <ShieldCheck className="w-5 h-5 text-white" />
               </div>
               <div>
-                <div className="text-xs text-muted-foreground font-semibold">TamBebe Certified</div>
-                <div className="text-sm font-black text-foreground">24-Point Inspection</div>
+                <div className="text-xs text-muted-foreground font-semibold">TamBebe Sertifikalı</div>
+                <div className="text-sm font-black text-foreground">24 Nokta Kontrolü</div>
               </div>
             </div>
           </motion.div>

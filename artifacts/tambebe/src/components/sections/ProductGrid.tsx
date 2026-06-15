@@ -21,11 +21,11 @@ export function ProductGrid() {
               className="inline-block text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full mb-4"
               style={{ backgroundColor: "#f6ab7820", color: "#c47a3a" }}
             >
-              In Stock Now
+              Stokta Mevcut
             </div>
-            <h2 className="text-3xl md:text-4xl font-black mb-3 text-foreground">Certified & Ready to Go</h2>
+            <h2 className="text-3xl md:text-4xl font-black mb-3 text-foreground">Sertifikalı ve Kullanıma Hazır</h2>
             <p className="text-base text-muted-foreground font-medium max-w-xl">
-              Each stroller passes our 24-point safety inspection. Premium brands, fraction of the price.
+              Her bebek arabası 24 noktalı güvenlik denetimimizden geçer. Premium markalar, çok daha uygun fiyata.
             </p>
           </div>
           <Link
@@ -34,7 +34,7 @@ export function ProductGrid() {
             style={{ color: "#65a6db" }}
             data-testid="link-view-all"
           >
-            View all inventory
+            Tüm stoğu gör
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -59,7 +59,7 @@ export function ProductGrid() {
                       className="inline-flex items-center gap-1 text-xs font-black px-2.5 py-1 rounded-full"
                       style={{ backgroundColor: "#65a6db", color: "white" }}
                     >
-                      <ShieldCheck className="w-3 h-3" /> Certified
+                      <ShieldCheck className="w-3 h-3" /> Sertifikalı
                     </span>
                     <span className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full bg-white border border-border">
                       <span
@@ -88,7 +88,7 @@ export function ProductGrid() {
                       >
                         {product.price}
                       </div>
-                      <div className="text-xs text-muted-foreground line-through font-semibold">Retail {product.retailPrice}</div>
+                      <div className="text-xs text-muted-foreground line-through font-semibold">Perakende {product.retailPrice}</div>
                     </div>
                     <div
                       className="w-10 h-10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
@@ -110,7 +110,7 @@ export function ProductGrid() {
             style={{ backgroundColor: "#65a6db" }}
             data-testid="button-shop-all"
           >
-            Browse All Strollers
+            Tüm Arabalara Göz At
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
