@@ -5,10 +5,8 @@ import {
   ArrowLeft, ShieldCheck, CheckCircle2, Package,
   ShoppingCart, Check, AlertTriangle, ChevronDown,
 } from "lucide-react";
-import {
-  getProductBySlug, getUniqueColors, getVariantsForColor, conditionMeta,
-} from "@/data/products";
-import type { ProductVariant, ConditionGrade } from "@/data/products";
+import { getProductBySlug, conditionMeta, CONDITION_ORDER } from "@/data/products";
+import type { Product, ProductVariant, ConditionGrade } from "@/data/products";
 import { Footer } from "@/components/sections/Footer";
 import { Navbar } from "@/components/Navbar";
 import { useCart } from "@/contexts/CartContext";
@@ -19,14 +17,37 @@ const stockLabel = (stock: number) => {
   return { text: `${stock} in stock`, color: "#059669" };
 };
 
-function Accordion({ title, icon, count, children }: { title: string; icon: React.ReactNode; count?: number; children: React.ReactNode }) {
+function getConditionSummaries(product: Product) {
+  return CONDITION_ORDER.map((condition) => {
+    const variants = product.variants.filter((v) => v.condition === condition);
+    const inStock = variants.filter((v) => v.stock > 0);
+    const lowestPrice = inStock.length
+      ? Math.min(...inStock.map((v) => v.priceNum))
+      : Math.min(...variants.map((v) => v.priceNum));
+    return { condition, hasStock: inStock.length > 0, lowestPrice, variants };
+  });
+}
+
+function getColorsForCondition(product: Product, condition: ConditionGrade) {
+  const seen = new Set<string>();
+  return product.variants
+    .filter((v) => v.condition === condition)
+    .filter((v) => {
+      if (seen.has(v.color)) return false;
+      seen.add(v.color);
+      return true;
+    })
+    .map((v) => ({ color: v.color, colorHex: v.colorHex, stock: v.stock }));
+}
+
+function Accordion({ title, icon, count, children }: {
+  title: string; icon: React.ReactNode; count?: number; children: React.ReactNode;
+}) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-2 border-border rounded-2xl overflow-hidden">
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors"
-      >
+    <div className="border border-border rounded-2xl overflow-hidden">
+      <button onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors">
         <span className="flex items-center gap-2 text-sm font-black text-foreground">
           {icon}
           {title}
@@ -36,16 +57,8 @@ function Accordion({ title, icon, count, children }: { title: string; icon: Reac
       </button>
       <AnimatePresence initial={false}>
         {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22, ease: "easeInOut" }}
-            className="overflow-hidden"
-          >
-            <div className="px-5 pb-4 border-t border-border pt-4">
-              {children}
-            </div>
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
+            <div className="px-5 pb-4 border-t border-border pt-4">{children}</div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -60,63 +73,63 @@ export default function ProductDetail() {
   const { addItem, isInCart } = useCart();
 
   const product = getProductBySlug(slug);
-  const params = new URLSearchParams(search);
-  const requestedVariantId = params.get("v");
+  const requestedVariantId = new URLSearchParams(search).get("v");
 
-  function initFromVariantId(variantId: string | null) {
-    if (!product) return { color: "", variantId: "" };
-    const v = product.variants.find((v) => v.id === variantId) ?? product.variants[0];
-    return { color: v.color, variantId: v.id };
+  function resolveInit(variantId: string | null): { condition: ConditionGrade; color: string } {
+    if (!product) return { condition: "Unopened", color: "" };
+    const byId = variantId ? product.variants.find((v) => v.id === variantId) : null;
+    const v = byId ?? product.variants.find((v) => v.stock > 0) ?? product.variants[0];
+    return { condition: v.condition, color: v.color };
   }
 
-  const init = useMemo(() => initFromVariantId(requestedVariantId), []);
+  const init = useMemo(() => resolveInit(requestedVariantId), []);
+  const [selectedCondition, setSelectedCondition] = useState<ConditionGrade>(init.condition);
   const [selectedColor, setSelectedColor] = useState(init.color);
-  const [selectedVariantId, setSelectedVariantId] = useState(init.variantId);
 
   useEffect(() => {
     if (!product) return;
-    const { color, variantId } = initFromVariantId(requestedVariantId);
+    const { condition, color } = resolveInit(requestedVariantId);
+    setSelectedCondition(condition);
     setSelectedColor(color);
-    setSelectedVariantId(variantId);
   }, [requestedVariantId]);
 
-  const uniqueColors = useMemo(() => product ? getUniqueColors(product) : [], [product]);
-  const conditionsForColor = useMemo(
-    () => product ? getVariantsForColor(product, selectedColor) : [],
-    [product, selectedColor]
+  const conditionSummaries = useMemo(() => product ? getConditionSummaries(product) : [], [product]);
+  const colorsForCondition = useMemo(
+    () => product ? getColorsForCondition(product, selectedCondition) : [],
+    [product, selectedCondition]
   );
   const selectedVariant: ProductVariant | undefined = useMemo(
-    () => product?.variants.find((v) => v.id === selectedVariantId),
-    [product, selectedVariantId]
+    () => product?.variants.find((v) => v.condition === selectedCondition && v.color === selectedColor),
+    [product, selectedCondition, selectedColor]
   );
+
+  function pickCondition(condition: ConditionGrade) {
+    if (!product) return;
+    const colors = getColorsForCondition(product, condition);
+    const firstInStock = colors.find((c) => c.stock > 0) ?? colors[0];
+    setSelectedCondition(condition);
+    setSelectedColor(firstInStock?.color ?? "");
+    const v = product.variants.find((v) => v.condition === condition && v.color === firstInStock?.color);
+    if (v) navigate(`/strollers/${slug}?v=${v.id}`, { replace: true });
+  }
 
   function pickColor(color: string) {
     if (!product) return;
-    const options = getVariantsForColor(product, color);
-    const firstInStock = options.find((v) => v.stock > 0) ?? options[0];
     setSelectedColor(color);
-    setSelectedVariantId(firstInStock.id);
-    navigate(`/strollers/${slug}?v=${firstInStock.id}`, { replace: true });
-  }
-
-  function pickCondition(v: ProductVariant) {
-    if (v.stock === 0) return;
-    setSelectedVariantId(v.id);
-    navigate(`/strollers/${slug}?v=${v.id}`, { replace: true });
+    const v = product.variants.find((v) => v.condition === selectedCondition && v.color === color);
+    if (v) navigate(`/strollers/${slug}?v=${v.id}`, { replace: true });
   }
 
   if (!product || !selectedVariant) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
-        <p className="text-xl font-black text-foreground">Stroller not found.</p>
-        <Link href="/shop" className="px-6 py-2.5 rounded-full text-sm font-black text-white" style={{ backgroundColor: "#65a6db" }}>
-          Back to shop
-        </Link>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <p className="text-xl font-black">Stroller not found.</p>
+        <Link href="/shop" className="px-6 py-2.5 rounded-full text-sm font-black text-white" style={{ backgroundColor: "#65a6db" }}>Back to shop</Link>
       </div>
     );
   }
 
-  const cm = conditionMeta[selectedVariant.condition as ConditionGrade];
+  const cm = conditionMeta[selectedVariant.condition];
   const sl = stockLabel(selectedVariant.stock);
   const outOfStock = selectedVariant.stock === 0;
   const inCart = isInCart(selectedVariant.id);
@@ -139,13 +152,8 @@ export default function ProductDetail() {
         <div className="container mx-auto px-4 md:px-6 py-6 md:py-10">
           <div className="grid md:grid-cols-2 gap-8 lg:gap-14">
 
-            {/* ── Image ── */}
-            <motion.div
-              key={selectedVariant.id + "-img"}
-              initial={{ opacity: 0.7 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.25 }}
-            >
+            {/* Image */}
+            <motion.div key={selectedVariant.id + "-img"} initial={{ opacity: 0.7 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>
               <div className="sticky top-20 rounded-3xl bg-gray-50 border border-border overflow-hidden aspect-square flex items-center justify-center p-8 relative">
                 <div className="absolute top-4 left-4 flex items-center gap-2">
                   <span className="inline-flex items-center gap-1 text-xs font-black rounded-full px-2.5 py-1 text-white" style={{ backgroundColor: "#65a6db" }}>
@@ -164,7 +172,7 @@ export default function ProductDetail() {
               </div>
             </motion.div>
 
-            {/* ── Details ── */}
+            {/* Details */}
             <div className="flex flex-col gap-5">
 
               {/* Title + price */}
@@ -183,7 +191,44 @@ export default function ProductDetail() {
                 </AnimatePresence>
               </div>
 
-              {/* Color */}
+              {/* ── 1. Condition selector ── */}
+              <div>
+                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground block mb-2">Condition</span>
+                <div className="flex flex-col gap-1.5">
+                  {conditionSummaries.map(({ condition, hasStock, lowestPrice }) => {
+                    const meta = conditionMeta[condition];
+                    const isSelected = condition === selectedCondition;
+                    return (
+                      <button key={condition} onClick={() => pickCondition(condition)}
+                        className={`flex items-center justify-between rounded-xl px-3.5 py-2.5 border text-left transition-all ${
+                          isSelected ? "border-2 shadow-sm" : !hasStock ? "opacity-40 border" : "border hover:border-gray-400"
+                        }`}
+                        style={{ borderColor: isSelected ? meta.color : undefined, backgroundColor: isSelected ? meta.bg : undefined }}
+                        data-testid={`condition-${condition}`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: meta.color }} />
+                          <span className="text-sm font-black text-foreground">{condition}</span>
+                          {isSelected && <Check className="w-3.5 h-3.5 shrink-0" style={{ color: meta.color }} />}
+                        </div>
+                        <div className="flex items-center gap-2 ml-3 shrink-0">
+                          <span className="text-xs text-muted-foreground font-medium">{hasStock ? "From" : ""}</span>
+                          <span className="text-sm font-black" style={{ color: hasStock ? "#f6ab78" : "#9ca3af" }}>€{lowestPrice}</span>
+                          {!hasStock && <span className="text-xs font-semibold text-red-400">None</span>}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <AnimatePresence mode="wait">
+                  <motion.p key={selectedCondition + "-desc"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
+                    className="mt-2 text-xs text-muted-foreground font-medium pl-1">
+                    <span className="font-bold" style={{ color: cm.color }}>{selectedCondition}:</span> {cm.description}
+                  </motion.p>
+                </AnimatePresence>
+              </div>
+
+              {/* ── 2. Color selector ── */}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">Color</span>
@@ -194,70 +239,32 @@ export default function ProductDetail() {
                     </motion.span>
                   </AnimatePresence>
                 </div>
-                <div className="flex gap-2.5 flex-wrap">
-                  {uniqueColors.map(({ color, colorHex }) => {
-                    const isSelected = color === selectedColor;
-                    const hasStock = product.variants.filter((v) => v.color === color).some((v) => v.stock > 0);
-                    return (
-                      <button key={color} onClick={() => pickColor(color)} title={color}
-                        className={`w-8 h-8 rounded-full border-2 transition-all ${isSelected ? "scale-110" : "opacity-55 hover:opacity-90"}`}
-                        style={{
-                          backgroundColor: colorHex,
-                          borderColor: isSelected ? "#252d3a" : "transparent",
-                          outline: isSelected ? `2px solid ${colorHex}` : "none",
-                          outlineOffset: "2px",
-                          filter: hasStock ? "none" : "grayscale(60%)",
-                        }}
-                        data-testid={`swatch-color-${color}`}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Condition */}
-              <div>
-                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground block mb-2">Condition</span>
                 <AnimatePresence mode="wait">
-                  <motion.div key={selectedColor + "-conds"} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
-                    className="flex flex-col gap-1.5">
-                    {conditionsForColor.map((v) => {
-                      const meta = conditionMeta[v.condition];
-                      const isSelected = v.id === selectedVariantId;
-                      const oos = v.stock === 0;
-                      const sl2 = stockLabel(v.stock);
+                  <motion.div key={selectedCondition + "-colors"} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
+                    className="flex gap-2.5 flex-wrap">
+                    {colorsForCondition.map(({ color, colorHex, stock }) => {
+                      const isSelected = color === selectedColor;
+                      const oos = stock === 0;
                       return (
-                        <button key={v.id} onClick={() => pickCondition(v)} disabled={oos}
-                          className={`flex items-center justify-between rounded-xl px-3.5 py-2.5 border text-left transition-all ${
-                            isSelected ? "border-2 shadow-sm" : oos ? "opacity-40 cursor-not-allowed border" : "border hover:border-gray-400"
-                          }`}
+                        <button key={color} onClick={() => pickColor(color)} title={`${color}${oos ? " – Out of stock" : ""}`}
+                          className={`w-9 h-9 rounded-full border-2 transition-all ${isSelected ? "scale-110" : oos ? "opacity-30 cursor-not-allowed" : "opacity-60 hover:opacity-90"}`}
                           style={{
-                            borderColor: isSelected ? meta.color : undefined,
-                            backgroundColor: isSelected ? meta.bg : undefined,
+                            backgroundColor: colorHex,
+                            borderColor: isSelected ? "#252d3a" : "transparent",
+                            outline: isSelected ? `2px solid ${colorHex}` : "none",
+                            outlineOffset: "2px",
                           }}
-                          data-testid={`condition-${v.id}`}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: meta.color }} />
-                            <span className="text-sm font-black text-foreground">{v.condition}</span>
-                            {isSelected && <Check className="w-3.5 h-3.5 shrink-0" style={{ color: meta.color }} />}
-                          </div>
-                          <div className="flex items-center gap-2 ml-3 shrink-0">
-                            <span className="text-sm font-black" style={{ color: oos ? "#9ca3af" : "#f6ab78" }}>{v.price}</span>
-                            <span className="text-xs font-semibold hidden sm:block" style={{ color: sl2.color }}>{oos ? "—" : sl2.text}</span>
-                          </div>
-                        </button>
+                          data-testid={`swatch-color-${color}`}
+                        />
                       );
                     })}
                   </motion.div>
                 </AnimatePresence>
-                {/* Selected condition description — one quiet line */}
-                <AnimatePresence mode="wait">
-                  <motion.p key={selectedVariantId + "-desc"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
-                    className="mt-2 text-xs text-muted-foreground font-medium pl-1">
-                    <span className="font-bold" style={{ color: cm.color }}>{selectedVariant.condition}:</span> {cm.description}
-                  </motion.p>
-                </AnimatePresence>
+                {colorsForCondition.length > 0 && (
+                  <p className="mt-2 text-xs text-muted-foreground font-medium pl-1">
+                    {selectedColor} · {selectedVariant.year}
+                  </p>
+                )}
               </div>
 
               {/* CTAs */}
@@ -288,7 +295,7 @@ export default function ProductDetail() {
                 </a>
               </div>
 
-              {/* Specs — compact list */}
+              {/* Specs */}
               <div className="grid grid-cols-2 gap-x-6 gap-y-2.5 py-4 border-t border-b border-border">
                 {([
                   ["Year", selectedVariant.year],
@@ -307,11 +314,7 @@ export default function ProductDetail() {
 
               {/* Accordions */}
               <div className="space-y-2">
-                <Accordion
-                  title="Renewal checklist"
-                  icon={<ShieldCheck className="w-4 h-4" style={{ color: "#65a6db" }} />}
-                  count={product.renewalChecks.length}
-                >
+                <Accordion title="Renewal checklist" icon={<ShieldCheck className="w-4 h-4" style={{ color: "#65a6db" }} />} count={product.renewalChecks.length}>
                   <ul className="space-y-2">
                     {product.renewalChecks.map((check) => (
                       <li key={check} className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -321,12 +324,7 @@ export default function ProductDetail() {
                     ))}
                   </ul>
                 </Accordion>
-
-                <Accordion
-                  title="What's included"
-                  icon={<Package className="w-4 h-4" style={{ color: "#f6ab78" }} />}
-                  count={product.included.length}
-                >
+                <Accordion title="What's included" icon={<Package className="w-4 h-4" style={{ color: "#f6ab78" }} />} count={product.included.length}>
                   <ul className="space-y-1.5">
                     {product.included.map((item) => (
                       <li key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
