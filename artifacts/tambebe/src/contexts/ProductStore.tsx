@@ -12,8 +12,13 @@ export const IMAGE_OPTIONS = [
 ] as const;
 export type ImageKey = typeof IMAGE_OPTIONS[number]["key"];
 
-export function resolveImage(key: ImageKey): string {
-  return IMAGE_OPTIONS.find((o) => o.key === key)?.src ?? stroller1;
+/** Resolves a stored image value: preset key → asset URL, data URL → pass-through */
+export function resolveImage(img: string): string {
+  if (!img) return stroller1;
+  if (img.startsWith("data:") || img.startsWith("blob:") || img.startsWith("/") || img.startsWith("http")) {
+    return img;
+  }
+  return IMAGE_OPTIONS.find((o) => o.key === img)?.src ?? stroller1;
 }
 
 interface VariantOverride {
@@ -32,7 +37,8 @@ export interface ExtraVariant {
   price: string;
   priceNum: number;
   stock: number;
-  imageKey: ImageKey;
+  /** Either a preset key like "stroller-1" or a base64 data URL */
+  image: string;
 }
 
 export interface ExtraProduct {
@@ -48,7 +54,8 @@ export interface ExtraProduct {
   renewalChecks: string[];
   included: string[];
   highlights: string[];
-  imageKey: ImageKey;
+  /** Either a preset key like "stroller-1" or a base64 data URL */
+  image: string;
   variants: ExtraVariant[];
 }
 
@@ -69,62 +76,77 @@ function loadStore(): StoreData {
 }
 
 function saveStore(data: StoreData) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.warn("localStorage quota exceeded — images may be too large", e);
+  }
 }
 
 function mergeProducts(storeData: StoreData): Product[] {
+  // 1. Apply overrides to static products
   const base: Product[] = staticProducts.map((p) => ({
     ...p,
     variants: p.variants.map((v) => {
       const override = storeData.variantOverrides[v.id];
-      if (!override) return v;
-      return { ...v, ...override };
+      return override ? { ...v, ...override } : v;
     }),
   }));
 
+  // 2. Append extra variants to their existing products (also apply overrides)
   for (const ev of storeData.extraVariants) {
     const product = base.find((p) => p.slug === ev.productSlug);
     if (!product) continue;
+    const override = storeData.variantOverrides[ev.id];
     const pv: ProductVariant = {
       id: ev.id,
       color: ev.color,
       colorHex: ev.colorHex,
       condition: ev.condition,
       year: ev.year,
-      price: ev.price,
-      priceNum: ev.priceNum,
-      stock: ev.stock,
-      image: resolveImage(ev.imageKey),
+      price: override?.price ?? ev.price,
+      priceNum: override?.priceNum ?? ev.priceNum,
+      stock: override?.stock ?? ev.stock,
+      image: resolveImage(ev.image),
     };
-    product.variants = [...product.variants, pv];
+    if (!product.variants.find((v) => v.id === ev.id)) {
+      product.variants = [...product.variants, pv];
+    }
   }
 
-  const extraProds: Product[] = storeData.extraProducts.map((ep, i) => ({
-    id: 1000 + i,
-    slug: ep.slug,
-    brand: ep.brand,
-    model: ep.model,
-    retailPrice: ep.retailPrice,
-    description: ep.description,
-    weight: ep.weight,
-    foldType: ep.foldType,
-    seatPositions: ep.seatPositions,
-    maxChildWeight: ep.maxChildWeight,
-    renewalChecks: ep.renewalChecks,
-    included: ep.included,
-    highlights: ep.highlights,
-    variants: ep.variants.map((ev) => ({
-      id: ev.id,
-      color: ev.color,
-      colorHex: ev.colorHex,
-      condition: ev.condition,
-      year: ev.year,
-      price: ev.price,
-      priceNum: ev.priceNum,
-      stock: ev.stock,
-      image: resolveImage(ev.imageKey),
-    })),
-  }));
+  // 3. Add extra products (dedup by slug, apply overrides to their variants)
+  const seenSlugs = new Set(base.map((p) => p.slug));
+  const extraProds: Product[] = storeData.extraProducts
+    .filter((ep) => !seenSlugs.has(ep.slug))
+    .map((ep, i) => ({
+      id: 1000 + i,
+      slug: ep.slug,
+      brand: ep.brand,
+      model: ep.model,
+      retailPrice: ep.retailPrice,
+      description: ep.description,
+      weight: ep.weight,
+      foldType: ep.foldType,
+      seatPositions: ep.seatPositions,
+      maxChildWeight: ep.maxChildWeight,
+      renewalChecks: ep.renewalChecks,
+      included: ep.included,
+      highlights: ep.highlights,
+      variants: ep.variants.map((ev) => {
+        const override = storeData.variantOverrides[ev.id];
+        return {
+          id: ev.id,
+          color: ev.color,
+          colorHex: ev.colorHex,
+          condition: ev.condition,
+          year: ev.year,
+          price: override?.price ?? ev.price,
+          priceNum: override?.priceNum ?? ev.priceNum,
+          stock: override?.stock ?? ev.stock,
+          image: resolveImage(ev.image),
+        };
+      }),
+    }));
 
   return [...base, ...extraProds];
 }
@@ -148,11 +170,6 @@ export function ProductStoreProvider({ children }: { children: ReactNode }) {
   const [storeData, setStoreData] = useState<StoreData>(loadStore);
 
   const products = useMemo(() => mergeProducts(storeData), [storeData]);
-
-  const persist = useCallback((data: StoreData) => {
-    saveStore(data);
-    setStoreData(data);
-  }, []);
 
   const getProductBySlug = useCallback(
     (slug: string) => products.find((p) => p.slug === slug),
@@ -180,6 +197,7 @@ export function ProductStoreProvider({ children }: { children: ReactNode }) {
 
   const addExtraVariant = useCallback((variant: ExtraVariant) => {
     setStoreData((prev) => {
+      if (prev.extraVariants.find((v) => v.id === variant.id)) return prev;
       const next: StoreData = { ...prev, extraVariants: [...prev.extraVariants, variant] };
       saveStore(next);
       return next;
@@ -191,6 +209,9 @@ export function ProductStoreProvider({ children }: { children: ReactNode }) {
       const next: StoreData = {
         ...prev,
         extraVariants: prev.extraVariants.filter((v) => v.id !== variantId),
+        variantOverrides: Object.fromEntries(
+          Object.entries(prev.variantOverrides).filter(([k]) => k !== variantId)
+        ),
       };
       saveStore(next);
       return next;
@@ -199,6 +220,11 @@ export function ProductStoreProvider({ children }: { children: ReactNode }) {
 
   const addExtraProduct = useCallback((product: ExtraProduct) => {
     setStoreData((prev) => {
+      const existingSlugs = new Set([
+        ...staticProducts.map((p) => p.slug),
+        ...prev.extraProducts.map((p) => p.slug),
+      ]);
+      if (existingSlugs.has(product.slug)) return prev;
       const next: StoreData = { ...prev, extraProducts: [...prev.extraProducts, product] };
       saveStore(next);
       return next;
@@ -218,8 +244,9 @@ export function ProductStoreProvider({ children }: { children: ReactNode }) {
 
   const resetAll = useCallback(() => {
     const empty: StoreData = { variantOverrides: {}, extraVariants: [], extraProducts: [] };
-    persist(empty);
-  }, [persist]);
+    saveStore(empty);
+    setStoreData(empty);
+  }, []);
 
   return (
     <ProductStoreContext.Provider value={{
