@@ -10,75 +10,99 @@ export function Navbar() {
   const { totalItems, openCart } = useCart();
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-      <div className="container mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
-        <Link href="/" className="text-xl font-black text-gray-900 tracking-tight">
-          Tam<span style={{ color: "#f6ab78" }}>Bebe</span>
+    <header className="sticky top-0 z-50 bg-white border-b border-border shadow-sm">
+      <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+        <Link href="/" className="text-2xl font-black text-foreground tracking-tight">
+          Tam<span style={{ color: "#f6ab78" }}>Bebe</span>.
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6">
-          <Link href="/shop" className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">
-            Inventory
-          </Link>
-          <Link href="/process" className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">
-            Our Process
+        <nav className="hidden md:flex items-center gap-1">
+          <Link
+            href="/process"
+            className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg"
+          >
+            The Process
           </Link>
           {isHome ? (
-            <a href="#faq" className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">FAQ</a>
+            <a href="#faq" className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg">
+              FAQ
+            </a>
           ) : (
-            <Link href="/#faq" className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">FAQ</Link>
+            <Link href="/#faq" className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg">
+              FAQ
+            </Link>
           )}
-        </nav>
+          <Link href="/" className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg">
+            Sell Your Stroller
+          </Link>
 
-        <div className="hidden md:flex items-center gap-3">
           <button
             onClick={openCart}
-            className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="relative ml-1 p-2.5 rounded-xl hover:bg-muted transition-colors"
             aria-label="Open cart"
             data-testid="button-open-cart"
           >
-            <ShoppingCart className="w-5 h-5 text-gray-700" />
+            <ShoppingCart className="w-5 h-5 text-foreground" />
             {totalItems > 0 && (
               <span
-                className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 rounded-full text-white text-[10px] font-black flex items-center justify-center"
-                style={{ backgroundColor: "#f6ab78", width: "18px", height: "18px" }}
+                className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full text-white text-[10px] font-black flex items-center justify-center"
+                style={{ backgroundColor: "#f6ab78" }}
                 data-testid="cart-badge"
               >
                 {totalItems}
               </span>
             )}
           </button>
+
           <Link
             href="/shop"
-            className="px-4 py-2 rounded-lg text-sm font-bold text-white bg-gray-900 hover:bg-gray-800 transition-colors"
+            className="ml-1 px-5 py-2 rounded-full text-sm font-black text-white transition-opacity hover:opacity-90"
+            style={{ backgroundColor: "#65a6db" }}
             data-testid="nav-shop"
           >
-            Shop Now
+            Shop Strollers
           </Link>
-        </div>
+        </nav>
 
         <div className="flex items-center gap-2 md:hidden">
-          <button onClick={openCart} className="relative p-2 rounded-lg hover:bg-gray-100" aria-label="Open cart">
+          <button
+            onClick={openCart}
+            className="relative p-2 rounded-lg hover:bg-muted transition-colors"
+            aria-label="Open cart"
+          >
             <ShoppingCart className="w-5 h-5" />
             {totalItems > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-white text-[9px] font-black flex items-center justify-center" style={{ backgroundColor: "#f6ab78" }}>
+              <span
+                className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-white text-[9px] font-black flex items-center justify-center"
+                style={{ backgroundColor: "#f6ab78" }}
+              >
                 {totalItems}
               </span>
             )}
           </button>
-          <button className="p-2 rounded-lg hover:bg-gray-100" onClick={() => setOpen(!open)} data-testid="button-mobile-menu" aria-label="Toggle menu">
+          <button
+            className="p-2 rounded-lg hover:bg-muted transition-colors"
+            onClick={() => setOpen(!open)}
+            data-testid="button-mobile-menu"
+            aria-label="Toggle menu"
+          >
             {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
       {open && (
-        <div className="md:hidden border-t border-gray-200 bg-white px-4 pb-4 pt-2 flex flex-col gap-0.5">
-          <Link href="/shop" onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-gray-50 text-gray-700">Inventory</Link>
-          <Link href="/process" onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-gray-50 text-gray-700">Our Process</Link>
-          <a href={isHome ? "#faq" : "/#faq"} onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-gray-50 text-gray-700">FAQ</a>
-          <Link href="/shop" onClick={() => setOpen(false)} className="mt-2 px-4 py-2.5 rounded-lg text-sm font-bold text-white bg-gray-900 text-center">
-            Shop Now
+        <div className="md:hidden border-t border-border bg-white px-4 pb-4 pt-2 flex flex-col gap-1">
+          <Link href="/process" onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-muted">The Process</Link>
+          <a href={isHome ? "#faq" : "/#faq"} onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-muted">FAQ</a>
+          <Link href="/" onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-muted">Sell Your Stroller</Link>
+          <Link
+            href="/shop"
+            onClick={() => setOpen(false)}
+            className="mt-1 px-4 py-2.5 rounded-full text-sm font-black text-white text-center"
+            style={{ backgroundColor: "#65a6db" }}
+          >
+            Shop Strollers
           </Link>
         </div>
       )}
