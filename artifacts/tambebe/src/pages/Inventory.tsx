@@ -44,7 +44,8 @@ export default function Inventory() {
 
   const allVariants = useMemo(() => getAllVariants(), [getAllVariants]);
 
-  const filtered = useMemo(() => {
+  // Step 1: filter variants by active filters
+  const filteredVariants = useMemo(() => {
     let list = [...allVariants];
     if (brand !== "Tümü") list = list.filter((v) => v.product.brand === brand);
     if (condition !== "Tümü") list = list.filter((v) => v.condition === condition);
@@ -57,11 +58,60 @@ export default function Inventory() {
         v.color.toLowerCase().includes(q)
       );
     }
-    if (sort === "price-asc") list.sort((a, b) => a.priceNum - b.priceNum);
-    if (sort === "price-desc") list.sort((a, b) => b.priceNum - a.priceNum);
-    if (sort === "newest") list.sort((a, b) => parseInt(b.year) - parseInt(a.year));
     return list;
-  }, [allVariants, brand, condition, sort, inStockOnly, search]);
+  }, [allVariants, brand, condition, inStockOnly, search]);
+
+  // Step 2: group by product slug → one entry per model
+  type ProductGroup = {
+    slug: string;
+    product: (typeof allVariants)[0]["product"];
+    variants: typeof allVariants;
+    rep: (typeof allVariants)[0];       // representative variant for the card image
+    minPrice: number;
+    minPriceStr: string;
+    inStockCount: number;
+    colorHexes: string[];
+  };
+
+  const filteredProducts = useMemo((): ProductGroup[] => {
+    const map = new Map<string, ProductGroup>();
+    for (const v of filteredVariants) {
+      const slug = v.product.slug;
+      if (!map.has(slug)) {
+        map.set(slug, {
+          slug,
+          product: v.product,
+          variants: [],
+          rep: v,
+          minPrice: v.priceNum,
+          minPriceStr: v.price,
+          inStockCount: 0,
+          colorHexes: [],
+        });
+      }
+      const g = map.get(slug)!;
+      g.variants.push(v);
+      if (v.stock > 0) {
+        g.inStockCount++;
+        // prefer in-stock variant as representative
+        if (g.rep.stock === 0) g.rep = v;
+      }
+      if (v.priceNum < g.minPrice) {
+        g.minPrice = v.priceNum;
+        g.minPriceStr = v.price;
+      }
+      if (!g.colorHexes.includes(v.colorHex)) g.colorHexes.push(v.colorHex);
+    }
+
+    const groups = Array.from(map.values());
+    if (sort === "price-asc") groups.sort((a, b) => a.minPrice - b.minPrice);
+    if (sort === "price-desc") groups.sort((a, b) => b.minPrice - a.minPrice);
+    if (sort === "newest") groups.sort((a, b) =>
+      Math.max(...b.variants.map(v => parseInt(v.year))) -
+      Math.max(...a.variants.map(v => parseInt(v.year)))
+    );
+    return groups;
+  }, [filteredVariants, sort]);
 
   const activeFilters =
     (brand !== "Tümü" ? 1 : 0) +
@@ -259,7 +309,7 @@ export default function Inventory() {
             )}
 
             <AnimatePresence mode="popLayout">
-              {filtered.length === 0 ? (
+              {filteredProducts.length === 0 ? (
                 <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                   className="flex flex-col items-center justify-center py-24 text-center">
                   <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: "#65a6db15" }}>
@@ -275,42 +325,51 @@ export default function Inventory() {
                 </motion.div>
               ) : (
                 <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                  {filtered.map((v, index) => {
-                    const meta = conditionMeta[v.condition];
-                    const oos = v.stock === 0;
+                  {filteredProducts.map((g, index) => {
+                    const hasStock = g.inStockCount > 0;
+                    const totalVariants = g.variants.length;
                     return (
-                      <motion.div key={v.id} layout
+                      <motion.div key={g.slug} layout
                         initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.3, delay: index * 0.04 }}>
-                        <Link href={`/strollers/${v.product.slug}?v=${v.id}`}
-                          className={`group block rounded-2xl bg-white border-2 overflow-hidden flex flex-col cursor-pointer transition-all hover:shadow-lg ${oos ? "border-gray-200 opacity-70" : "border-border hover:border-transparent"}`}>
+                        <Link href={`/strollers/${g.slug}`}
+                          className={`group block rounded-2xl bg-white border-2 overflow-hidden flex flex-col cursor-pointer transition-all hover:shadow-lg ${!hasStock ? "border-gray-200 opacity-70" : "border-border hover:border-transparent"}`}>
                           <div className="relative bg-gray-50 aspect-[4/3] flex items-center justify-center overflow-hidden p-6">
                             <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
                               <span className="inline-flex items-center gap-1 text-xs font-black px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "#65a6db" }}>
                                 <ShieldCheck className="w-3 h-3" /> Sertifikalı
                               </span>
-                              <span className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full" style={{ backgroundColor: meta.bg, color: meta.color }}>
-                                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: meta.color }} />
-                                {conditionTR[v.condition]}
-                              </span>
-                              {oos && <span className="inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-600">Stokta Yok</span>}
+                              {!hasStock && (
+                                <span className="inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-600">Stokta Yok</span>
+                              )}
                             </div>
-                            <div className="absolute top-3 right-3 z-10">
-                              <span className="w-5 h-5 rounded-full border-2 border-white shadow block" style={{ backgroundColor: v.colorHex }} title={v.color} />
-                            </div>
-                            <img src={v.image} alt={`${v.product.brand} ${v.product.model}`}
-                              className={`w-full h-full object-contain transition-all duration-500 group-hover:scale-105 ${oos ? "grayscale opacity-60" : ""}`} />
+                            {/* Color swatches top-right */}
+                            {g.colorHexes.length > 0 && (
+                              <div className="absolute top-3 right-3 z-10 flex flex-col gap-1">
+                                {g.colorHexes.slice(0, 4).map((hex) => (
+                                  <span key={hex} className="w-4 h-4 rounded-full border-2 border-white shadow block" style={{ backgroundColor: hex }} />
+                                ))}
+                                {g.colorHexes.length > 4 && (
+                                  <span className="text-[9px] font-black text-muted-foreground text-right">+{g.colorHexes.length - 4}</span>
+                                )}
+                              </div>
+                            )}
+                            <img src={g.rep.image} alt={`${g.product.brand} ${g.product.model}`}
+                              className={`w-full h-full object-contain transition-all duration-500 group-hover:scale-105 ${!hasStock ? "grayscale opacity-60" : ""}`} />
                           </div>
                           <div className="p-4 flex flex-col flex-1">
-                            <div className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-0.5">{v.product.brand}</div>
-                            <h3 className="text-base font-black mb-1 text-foreground">{v.product.model}</h3>
-                            <div className="text-xs text-muted-foreground font-semibold mb-3">{v.color} · {v.year}</div>
+                            <div className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-0.5">{g.product.brand}</div>
+                            <h3 className="text-base font-black mb-1 text-foreground">{g.product.model}</h3>
+                            <div className="text-xs text-muted-foreground font-semibold mb-3">
+                              {totalVariants > 1 ? `${hasStock ? g.inStockCount : totalVariants} varyant mevcut` : "1 ilan"}
+                            </div>
                             <div className="mt-auto flex items-center justify-between">
                               <div>
-                                <div className="text-xl font-black" style={{ color: oos ? "#9ca3af" : "#f6ab78" }}>{v.price}</div>
-                                <div className="text-xs text-muted-foreground line-through font-semibold">Perakende {v.product.retailPrice}</div>
+                                <div className="text-[11px] font-semibold text-muted-foreground -mb-0.5">'den başlayan</div>
+                                <div className="text-xl font-black" style={{ color: !hasStock ? "#9ca3af" : "#f6ab78" }}>{g.minPriceStr}</div>
+                                <div className="text-xs text-muted-foreground line-through font-semibold">Perakende {g.product.retailPrice}</div>
                               </div>
-                              {!oos && (
+                              {hasStock && (
                                 <div className="w-9 h-9 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform" style={{ backgroundColor: "#65a6db15", color: "#65a6db" }}>
                                   <ArrowRight className="w-4 h-4" />
                                 </div>
@@ -325,7 +384,7 @@ export default function Inventory() {
               )}
             </AnimatePresence>
 
-            {filtered.length > 0 && (
+            {filteredProducts.length > 0 && (
               <div className="mt-12 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ backgroundColor: "#65a6db15" }}>
                 <div>
                   <p className="font-black text-foreground text-base">Aradığınızı bulamadınız mı?</p>
