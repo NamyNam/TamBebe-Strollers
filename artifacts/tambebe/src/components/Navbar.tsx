@@ -6,39 +6,66 @@ import { useCart } from "@/contexts/CartContext";
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [location] = useLocation();
-  const isHome = location === "/";
   const { totalItems, openCart } = useCart();
 
+  function navLink(href: string, label: string) {
+    const active = location === href || (href !== "/" && location.startsWith(href));
+    return (
+      <Link
+        href={href}
+        className={`relative px-4 py-2 text-sm font-semibold transition-colors rounded-lg ${
+          active ? "text-foreground" : "text-foreground/60 hover:text-foreground"
+        }`}
+      >
+        {label}
+        {active && (
+          <span
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+            style={{ backgroundColor: "#f6ab78" }}
+          />
+        )}
+      </Link>
+    );
+  }
+
+  function mobileLink(href: string, label: string) {
+    const active = location === href || (href !== "/" && location.startsWith(href));
+    return (
+      <Link
+        href={href}
+        onClick={() => setOpen(false)}
+        className={`px-3 py-2.5 text-sm font-semibold rounded-xl transition-colors ${
+          active
+            ? "text-foreground font-black"
+            : "text-foreground/70 hover:bg-muted hover:text-foreground"
+        }`}
+        style={active ? { backgroundColor: "#f6ab7815" } : {}}
+      >
+        {label}
+      </Link>
+    );
+  }
+
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-border shadow-sm">
+    <header className="sticky top-0 z-50 border-b border-border/60 bg-white/90 backdrop-blur-md shadow-sm">
       <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="text-2xl font-black text-foreground tracking-tight">
+
+        {/* Logo */}
+        <Link href="/" className="text-2xl font-black text-foreground tracking-tight shrink-0">
           Tam<span style={{ color: "#f6ab78" }}>Bebe</span>.
         </Link>
 
-        <nav className="hidden md:flex items-center gap-1">
-          <Link
-            href="/process"
-            className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg"
-          >
-            Sürecimiz
-          </Link>
-          {isHome ? (
-            <a href="#faq" className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg">
-              S.S.S.
-            </a>
-          ) : (
-            <Link href="/#faq" className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg">
-              S.S.S.
-            </Link>
-          )}
-          <Link href="/sell" className="px-4 py-2 text-sm font-semibold text-foreground hover:text-foreground/70 transition-colors rounded-lg">
-            Arabanı Sat
-          </Link>
+        {/* Desktop nav */}
+        <nav className="hidden md:flex items-center gap-0.5">
+          {navLink("/process", "Sürecimiz")}
+          {navLink("/sell", "Arabanı Sat")}
+        </nav>
 
+        {/* Desktop right actions */}
+        <div className="hidden md:flex items-center gap-2">
           <button
             onClick={openCart}
-            className="relative ml-1 p-2.5 rounded-xl hover:bg-muted transition-colors"
+            className="relative p-2.5 rounded-xl hover:bg-muted transition-colors"
             aria-label="Sepeti aç"
             data-testid="button-open-cart"
           >
@@ -56,15 +83,16 @@ export function Navbar() {
 
           <Link
             href="/shop"
-            className="ml-1 px-5 py-2 rounded-full text-sm font-black text-white transition-opacity hover:opacity-90"
+            className="px-5 py-2 rounded-full text-sm font-black text-white transition-all hover:opacity-90 hover:shadow-md"
             style={{ backgroundColor: "#65a6db" }}
             data-testid="nav-shop"
           >
             Arabalara Göz At
           </Link>
-        </nav>
+        </div>
 
-        <div className="flex items-center gap-2 md:hidden">
+        {/* Mobile right actions */}
+        <div className="flex items-center gap-1.5 md:hidden">
           <button
             onClick={openCart}
             className="relative p-2 rounded-lg hover:bg-muted transition-colors"
@@ -91,15 +119,15 @@ export function Navbar() {
         </div>
       </div>
 
+      {/* Mobile menu */}
       {open && (
-        <div className="md:hidden border-t border-border bg-white px-4 pb-4 pt-2 flex flex-col gap-1">
-          <Link href="/process" onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-muted">Sürecimiz</Link>
-          <a href={isHome ? "#faq" : "/#faq"} onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-muted">S.S.S.</a>
-          <Link href="/sell" onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-semibold rounded-lg hover:bg-muted">Arabanı Sat</Link>
+        <div className="md:hidden border-t border-border/60 bg-white px-4 pb-5 pt-3 flex flex-col gap-1">
+          {mobileLink("/process", "Sürecimiz")}
+          {mobileLink("/sell", "Arabanı Sat")}
           <Link
             href="/shop"
             onClick={() => setOpen(false)}
-            className="mt-1 px-4 py-2.5 rounded-full text-sm font-black text-white text-center"
+            className="mt-2 px-4 py-3 rounded-2xl text-sm font-black text-white text-center transition-opacity hover:opacity-90"
             style={{ backgroundColor: "#65a6db" }}
           >
             Arabalara Göz At
