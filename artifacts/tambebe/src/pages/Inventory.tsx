@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ShieldCheck, SlidersHorizontal, X, ChevronDown } from "lucide-react";
+import { ArrowRight, ShieldCheck, SlidersHorizontal, X, ChevronDown, Search } from "lucide-react";
 import { conditionMeta } from "@/data/products";
 import type { ConditionGrade } from "@/data/products";
 import { useProductStore } from "@/contexts/ProductStore";
@@ -39,7 +39,8 @@ export default function Inventory() {
   const [sort, setSort] = useState<SortOption>("newest");
   const [sortOpen, setSortOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [inStockOnly, setInStockOnly] = useState(false);
+  const [inStockOnly, setInStockOnly] = useState(true);
+  const [search, setSearch] = useState("");
 
   const allVariants = useMemo(() => getAllVariants(), [getAllVariants]);
 
@@ -48,22 +49,32 @@ export default function Inventory() {
     if (brand !== "Tümü") list = list.filter((v) => v.product.brand === brand);
     if (condition !== "Tümü") list = list.filter((v) => v.condition === condition);
     if (inStockOnly) list = list.filter((v) => v.stock > 0);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter((v) =>
+        v.product.brand.toLowerCase().includes(q) ||
+        v.product.model.toLowerCase().includes(q) ||
+        v.color.toLowerCase().includes(q)
+      );
+    }
     if (sort === "price-asc") list.sort((a, b) => a.priceNum - b.priceNum);
     if (sort === "price-desc") list.sort((a, b) => b.priceNum - a.priceNum);
     if (sort === "newest") list.sort((a, b) => parseInt(b.year) - parseInt(a.year));
     return list;
-  }, [allVariants, brand, condition, sort, inStockOnly]);
+  }, [allVariants, brand, condition, sort, inStockOnly, search]);
 
   const activeFilters =
     (brand !== "Tümü" ? 1 : 0) +
     (condition !== "Tümü" ? 1 : 0) +
-    (inStockOnly ? 1 : 0);
+    (inStockOnly ? 1 : 0) +
+    (search.trim() ? 1 : 0);
 
   function clearAll() {
     setBrand("Tümü");
     setCondition("Tümü");
     setSort("newest");
-    setInStockOnly(false);
+    setInStockOnly(true);
+    setSearch("");
   }
 
   return (
@@ -195,10 +206,13 @@ export default function Inventory() {
           </aside>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-              <p className="text-sm font-bold text-muted-foreground">
-                <span className="font-black text-foreground text-base">{filtered.length}</span> ilan mevcut
-              </p>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mb-6 gap-3">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input type="text" value={search} placeholder="Marka, model veya renk ara..."
+                  className="w-full pl-9 pr-4 py-2.5 rounded-xl border-2 border-border text-sm font-semibold bg-white focus:outline-none focus:border-[#65a6db] transition-colors"
+                  onChange={e => setSearch(e.target.value)} />
+              </div>
               <div className="relative">
                 <button onClick={() => setSortOpen(!sortOpen)}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-border text-sm font-bold hover:border-foreground transition-colors">
@@ -234,6 +248,11 @@ export default function Inventory() {
                 {inStockOnly && (
                   <span className="inline-flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full bg-green-100 text-green-700">
                     Yalnızca stokta<button onClick={() => setInStockOnly(false)}><X className="w-3 h-3 ml-1" /></button>
+                  </span>
+                )}
+                {search.trim() && (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full bg-gray-100 text-gray-700">
+                    Arama: {search}<button onClick={() => setSearch("")}><X className="w-3 h-3 ml-1" /></button>
                   </span>
                 )}
               </div>
