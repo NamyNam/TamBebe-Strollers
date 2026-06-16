@@ -37,7 +37,7 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-black mb-4 text-foreground">Destek</h4>
             <a href="mailto:info@tambebe.com"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors">
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Bize Ulaşın
             </a>
           </div>
