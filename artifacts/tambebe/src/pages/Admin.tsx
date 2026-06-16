@@ -615,7 +615,7 @@ function ProductCard({ product, isExtra, onDelete, onHide, onToast }: {
               )
             : onHide && (
                 <button
-                  onClick={e => { e.stopPropagation(); if (confirm(`"${product.brand} ${product.model}" modelini siteden kaldırmak istediğinizden emin misiniz? Admin panelinden geri getirebilirsiniz.`)) onHide(); }}
+                  onClick={e => { e.stopPropagation(); if (confirm(`"${product.brand} ${product.model}" modelini silmek istediğinizden emin misiniz?`)) onHide(); }}
                   className="p-1.5 rounded-lg hover:bg-red-100 text-muted-foreground hover:text-red-500"
                   title="Modeli gizle">
                   <Trash2 className="w-4 h-4" />
@@ -855,7 +855,7 @@ export default function Admin() {
   const [confirmReset, setConfirmReset] = useState(false);
   const [toast, setToast] = useState<{ msg: string; variant: "success" | "error" } | null>(null);
 
-  const { products, storeData, addExtraProduct, deleteExtraProduct, hideProduct, unhideProduct, resetAll } = useProductStore();
+  const { products, storeData, addExtraProduct, deleteExtraProduct, hideProduct, resetAll } = useProductStore();
   const { requests, updateStatus, deleteRequest } = useSellStore();
 
   const extraSlugs = useMemo(() => new Set(storeData.extraProducts.map(p => p.slug)), [storeData]);
@@ -981,24 +981,6 @@ export default function Admin() {
                 ))}
               </div>
 
-              {/* Gizlenmiş statik ürünler — geri getir */}
-              {storeData.hiddenProducts.length > 0 && (
-                <div className="bg-white rounded-2xl border-2 border-dashed border-amber-300 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-3 flex items-center gap-1.5">
-                    <EyeOff className="w-3 h-3" /> Gizlenmiş Modeller ({storeData.hiddenProducts.length})
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {storeData.hiddenProducts.map(slug => (
-                      <button key={slug}
-                        onClick={() => { unhideProduct(slug); showToast("Model geri getirildi."); }}
-                        className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 hover:border-amber-400 hover:bg-amber-100 transition-colors">
-                        <Eye className="w-3 h-3 text-amber-600" />
-                        <span className="text-amber-800">{slug}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </>
         )}
