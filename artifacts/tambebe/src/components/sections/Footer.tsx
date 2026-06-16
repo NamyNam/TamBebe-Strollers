@@ -42,7 +42,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li><a href="#" className="hover:text-foreground transition-colors">Sürecimiz</a></li>
               <li><a href="#" className="hover:text-foreground transition-colors">Güvenlik Standartları</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Arabanı Sat</a></li>
+              <li><Link href="/sell" className="hover:text-foreground transition-colors">Arabanı Sat</Link></li>
               <li><a href="#" className="hover:text-foreground transition-colors">Yorumlar</a></li>
             </ul>
           </div>

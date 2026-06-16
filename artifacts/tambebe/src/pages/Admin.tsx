@@ -5,12 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ShieldCheck, LogOut, RotateCcw, Plus, Pencil, Trash2,
   Check, X, ChevronDown, ChevronRight, Package, AlertTriangle,
-  Eye, EyeOff, ImagePlus, CheckCircle2,
+  Eye, EyeOff, ImagePlus, CheckCircle2, Inbox, Phone, Mail,
+  MapPin, FileText, Clock, Camera,
 } from "lucide-react";
 import {
   useProductStore, IMAGE_OPTIONS, resolveImage,
   type ExtraVariant, type ExtraProduct,
 } from "@/contexts/ProductStore";
+import { useSellStore, STATUS_META, type SellRequest } from "@/contexts/SellStore";
 import { conditionMeta, CONDITION_ORDER } from "@/data/products";
 import type { Product, ProductVariant, ConditionGrade } from "@/data/products";
 
@@ -605,17 +607,164 @@ function ProductCard({ product, isExtra, onDelete, onToast }: {
   );
 }
 
+// ─── Sell Request Card ────────────────────────────────────────────────────────
+function SellRequestCard({ req, onStatus, onDelete }: {
+  req: SellRequest;
+  onStatus: (s: SellRequest["status"]) => void;
+  onDelete: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [photoIdx, setPhotoIdx] = useState(0);
+  const sm = STATUS_META[req.status];
+  const date = new Date(req.submittedAt).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+
+  return (
+    <div className={`bg-white rounded-2xl border-2 overflow-hidden transition-colors ${open ? "border-[#65a6db]" : "border-border"}`}>
+      {/* Header row */}
+      <div className="flex items-center gap-3 p-4 cursor-pointer select-none" onClick={() => setOpen(o => !o)}>
+        {req.photos[0] && (
+          <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 shrink-0">
+            <img src={req.photos[0]} alt="" className="w-full h-full object-cover" />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <p className="font-black truncate">{req.brand} {req.model}</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-xs text-muted-foreground font-medium">{req.city} · {date}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-[11px] font-black px-2.5 py-1 rounded-full"
+            style={{ color: sm.color, backgroundColor: sm.bg }}>{sm.label}</span>
+          {open ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+        </div>
+      </div>
+
+      {/* Expanded detail */}
+      {open && (
+        <div className="border-t border-border p-4 space-y-5">
+          {/* Photos */}
+          {req.photos.length > 0 && (
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1.5">
+                <Camera className="w-3 h-3" /> Fotoğraflar ({req.photos.length})
+              </p>
+              <div className="flex gap-2">
+                <div className="flex-1 aspect-video rounded-xl overflow-hidden bg-gray-100">
+                  <img src={req.photos[photoIdx]} alt="" className="w-full h-full object-contain" />
+                </div>
+                {req.photos.length > 1 && (
+                  <div className="flex flex-col gap-1.5 w-14">
+                    {req.photos.map((p, i) => (
+                      <button key={i} onClick={() => setPhotoIdx(i)}
+                        className={`w-14 h-14 rounded-lg overflow-hidden border-2 transition-colors ${photoIdx === i ? "border-[#65a6db]" : "border-border"}`}>
+                        <img src={p} alt="" className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Info grid */}
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <InfoRow icon={FileText} label="Fatura" value={req.hasInvoice ? "Var ✓" : "Yok"} />
+            <InfoRow icon={Clock} label="Kullanım"
+              value={[req.usageYears && `${req.usageYears} yıl`, req.usageMonths && `${req.usageMonths} ay`].filter(Boolean).join(" ") || "—"} />
+            <InfoRow icon={CheckCircle2} label="Tüm fonk. çalışıyor"
+              value={req.allFunctionsWorking ? "Evet ✓" : "Hayır ✗"} />
+            <InfoRow icon={AlertTriangle} label="Problem var mı"
+              value={req.hasProblems ? "Var" : "Yok ✓"} />
+            <InfoRow icon={AlertTriangle} label="Fiziksel hasar"
+              value={req.hasPhysicalDamage ? "Var" : "Yok ✓"} />
+          </div>
+          {req.hasProblems && req.problemDetails && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+              <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-1">Problem Detayı</p>
+              <p className="text-sm text-amber-800 font-medium">{req.problemDetails}</p>
+            </div>
+          )}
+          {req.hasPhysicalDamage && req.damageDetails && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+              <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-1">Hasar Detayı</p>
+              <p className="text-sm text-amber-800 font-medium">{req.damageDetails}</p>
+            </div>
+          )}
+
+          {/* Contact */}
+          <div className="bg-gray-50 rounded-xl p-3 space-y-2">
+            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">İletişim</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              <a href={`mailto:${req.email}`} className="flex items-center gap-2 text-[#65a6db] hover:underline font-semibold">
+                <Mail className="w-3.5 h-3.5 shrink-0" />{req.email}
+              </a>
+              <a href={`tel:${req.phone}`} className="flex items-center gap-2 font-semibold hover:text-[#65a6db]">
+                <Phone className="w-3.5 h-3.5 shrink-0" />{req.phone}
+              </a>
+              <span className="flex items-center gap-2 text-muted-foreground font-medium sm:col-span-2">
+                <MapPin className="w-3.5 h-3.5 shrink-0" />{req.city} — {req.address}
+              </span>
+            </div>
+          </div>
+          {req.notes && (
+            <div className="bg-blue-50 border border-blue-100 rounded-xl px-3 py-2">
+              <p className="text-[10px] font-black uppercase tracking-widest text-[#65a6db] mb-1">Ek Bilgiler</p>
+              <p className="text-sm font-medium text-gray-700">{req.notes}</p>
+            </div>
+          )}
+
+          {/* Status + delete */}
+          <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
+            <div className="flex flex-wrap gap-1.5">
+              {(["new", "contacted", "purchased", "rejected"] as SellRequest["status"][]).map(s => {
+                const m = STATUS_META[s];
+                return (
+                  <button key={s} onClick={() => onStatus(s)}
+                    className={`text-xs font-black px-3 py-1.5 rounded-xl border-2 transition-all ${req.status === s ? "border-current" : "border-border hover:border-gray-300"}`}
+                    style={req.status === s ? { color: m.color, backgroundColor: m.bg, borderColor: m.color } : {}}>
+                    {m.label}
+                  </button>
+                );
+              })}
+            </div>
+            <button onClick={() => { if (confirm("Bu talebi sil?")) onDelete(); }}
+              className="p-1.5 rounded-lg hover:bg-red-100 text-muted-foreground hover:text-red-500">
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InfoRow({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
+  return (
+    <div className="flex items-start gap-2">
+      <Icon className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />
+      <div>
+        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{label}</p>
+        <p className="text-sm font-semibold">{value}</p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Admin Page ───────────────────────────────────────────────────────────────
 export default function Admin() {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === "1");
+  const [tab, setTab] = useState<"stock" | "sell">("stock");
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
   const { products, storeData, addExtraProduct, deleteExtraProduct, resetAll } = useProductStore();
+  const { requests, updateStatus, deleteRequest } = useSellStore();
 
   const extraSlugs = useMemo(() => new Set(storeData.extraProducts.map(p => p.slug)), [storeData]);
   const allSlugs = useMemo(() => new Set(products.map(p => p.slug)), [products]);
+  const newSellCount = useMemo(() => requests.filter(r => r.status === "new").length, [requests]);
 
   const stats = useMemo(() => {
     const all = products.flatMap(p => p.variants);
@@ -647,68 +796,127 @@ export default function Admin() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 md:px-6 py-8 space-y-6">
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { label: "Toplam Ürün", v: products.length, icon: Package, color: "#65a6db" },
-            { label: "Stokta", v: `${stats.inStock}/${stats.total}`, icon: ShieldCheck, color: "#059669" },
-            { label: "Değişiklik", v: stats.overrides, icon: Pencil, color: "#f6ab78" },
-          ].map(({ label, v, icon: Icon, color }) => (
-            <div key={label} className="bg-white rounded-2xl border border-border p-3 md:p-4 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: color + "18" }}>
-                <Icon className="w-4 h-4" style={{ color }} />
-              </div>
-              <div>
-                <p className="text-lg font-black leading-tight">{v}</p>
-                <p className="text-[11px] font-semibold text-muted-foreground">{label}</p>
-              </div>
-            </div>
+        {/* Tabs */}
+        <div className="flex gap-1 bg-white rounded-2xl border border-border p-1 w-fit">
+          {([
+            { key: "stock", label: "Stok Yönetimi", icon: Package },
+            { key: "sell",  label: "Satış Talepleri", icon: Inbox, badge: newSellCount },
+          ] as const).map(({ key, label, icon: Icon, badge }) => (
+            <button key={key} onClick={() => setTab(key)}
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all ${tab === key ? "text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+              style={tab === key ? { backgroundColor: "#65a6db" } : {}}>
+              <Icon className="w-4 h-4" />{label}
+              {badge != null && badge > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-white text-[10px] font-black flex items-center justify-center"
+                  style={{ backgroundColor: "#f6ab78" }}>{badge}</span>
+              )}
+            </button>
           ))}
         </div>
 
-        {/* Low stock warning */}
-        {products.flatMap(p => p.variants).some(v => v.stock === 0) && (
-          <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3">
-            <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
-            <p className="text-sm font-semibold text-amber-700">
-              {products.flatMap(p => p.variants).filter(v => v.stock === 0).length} varyant stokta yok.
-            </p>
-          </div>
+        {tab === "stock" && (
+          <>
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: "Toplam Ürün", v: products.length, icon: Package, color: "#65a6db" },
+                { label: "Stokta", v: `${stats.inStock}/${stats.total}`, icon: ShieldCheck, color: "#059669" },
+                { label: "Değişiklik", v: stats.overrides, icon: Pencil, color: "#f6ab78" },
+              ].map(({ label, v, icon: Icon, color }) => (
+                <div key={label} className="bg-white rounded-2xl border border-border p-3 md:p-4 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: color + "18" }}>
+                    <Icon className="w-4 h-4" style={{ color }} />
+                  </div>
+                  <div>
+                    <p className="text-lg font-black leading-tight">{v}</p>
+                    <p className="text-[11px] font-semibold text-muted-foreground">{label}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {products.flatMap(p => p.variants).some(v => v.stock === 0) && (
+              <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3">
+                <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                <p className="text-sm font-semibold text-amber-700">
+                  {products.flatMap(p => p.variants).filter(v => v.stock === 0).length} varyant stokta yok.
+                </p>
+              </div>
+            )}
+
+            <div>
+              <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                <h2 className="text-xl font-black">Ürünler & Stok</h2>
+                <div className="flex gap-2">
+                  {stats.overrides > 0 && (
+                    <button onClick={() => setConfirmReset(true)}
+                      className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl border-2 border-red-200 text-red-500 hover:bg-red-50">
+                      <RotateCcw className="w-3.5 h-3.5" /> Sıfırla
+                    </button>
+                  )}
+                  <button onClick={() => setShowAddProduct(true)}
+                    className="flex items-center gap-1.5 text-xs font-black px-4 py-2 rounded-xl text-white"
+                    style={{ backgroundColor: "#f6ab78" }}>
+                    <Plus className="w-3.5 h-3.5" /> Yeni Ürün
+                  </button>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground font-medium mb-3">
+                Ürüne tıkla → Varyantları gör → Kalem = düzenle · Göz = gizle · Çöp = sil
+              </p>
+              <div className="space-y-3">
+                {products.map(p => (
+                  <ProductCard key={p.slug} product={p} isExtra={extraSlugs.has(p.slug)}
+                    onDelete={() => { deleteExtraProduct(p.slug); showToast("Ürün silindi."); }}
+                    onToast={showToast}
+                  />
+                ))}
+              </div>
+            </div>
+          </>
         )}
 
-        {/* Product list */}
-        <div>
-          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-            <h2 className="text-xl font-black">Ürünler & Stok</h2>
-            <div className="flex gap-2">
-              {stats.overrides > 0 && (
-                <button onClick={() => setConfirmReset(true)}
-                  className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl border-2 border-red-200 text-red-500 hover:bg-red-50">
-                  <RotateCcw className="w-3.5 h-3.5" /> Sıfırla
-                </button>
-              )}
-              <button onClick={() => setShowAddProduct(true)}
-                className="flex items-center gap-1.5 text-xs font-black px-4 py-2 rounded-xl text-white"
-                style={{ backgroundColor: "#f6ab78" }}>
-                <Plus className="w-3.5 h-3.5" /> Yeni Ürün
-              </button>
+        {tab === "sell" && (
+          <div>
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <div>
+                <h2 className="text-xl font-black">Satış Talepleri</h2>
+                <p className="text-xs text-muted-foreground font-medium mt-0.5">
+                  Müşterilerin "Arabanı Sat" formundan gönderdiği talepler
+                </p>
+              </div>
+              <div className="flex gap-2 text-xs font-semibold text-muted-foreground">
+                <span>{requests.length} toplam</span>
+                {newSellCount > 0 && (
+                  <span className="font-black" style={{ color: "#2563a8" }}>{newSellCount} yeni</span>
+                )}
+              </div>
             </div>
+
+            {requests.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-border p-12 flex flex-col items-center justify-center text-center">
+                <Inbox className="w-10 h-10 text-muted-foreground mb-3" />
+                <p className="font-black text-lg mb-1">Henüz talep yok</p>
+                <p className="text-sm text-muted-foreground font-medium">
+                  Müşteriler{" "}
+                  <Link href="/sell" className="text-[#65a6db] hover:underline">/sell</Link>
+                  {" "}sayfasından form doldurduğunda burada görünecek.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {[...requests].reverse().map(r => (
+                  <SellRequestCard key={r.id} req={r}
+                    onStatus={s => { updateStatus(r.id, s); showToast(`Durum güncellendi: ${STATUS_META[s].label}`); }}
+                    onDelete={() => { deleteRequest(r.id); showToast("Talep silindi."); }}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-          <p className="text-xs text-muted-foreground font-medium mb-3">
-            Ürüne tıkla → Varyantları gör → Kalem = düzenle · Göz = gizle · Çöp = sil
-          </p>
-          <div className="space-y-3">
-            {products.map(p => (
-              <ProductCard key={p.slug} product={p} isExtra={extraSlugs.has(p.slug)}
-                onDelete={() => { deleteExtraProduct(p.slug); showToast("Ürün silindi."); }}
-                onToast={showToast}
-              />
-            ))}
-          </div>
-        </div>
+        )}
       </main>
 
-      {/* New product modal */}
       {showAddProduct && (
         <AddProductModal
           existingSlugs={allSlugs}
@@ -717,7 +925,6 @@ export default function Admin() {
         />
       )}
 
-      {/* Reset confirm */}
       {confirmReset && (
         <PortalModal title="Tüm değişiklikler sıfırlansın mı?" onClose={() => setConfirmReset(false)}>
           <p className="text-sm text-muted-foreground font-medium mb-5 mt-2">
@@ -732,7 +939,6 @@ export default function Admin() {
         </PortalModal>
       )}
 
-      {/* Toast */}
       <AnimatePresence>
         {toast && <Toast key={toast} msg={toast} onDone={() => setToast(null)} />}
       </AnimatePresence>
