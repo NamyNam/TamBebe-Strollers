@@ -17,6 +17,7 @@ export interface SellRequest {
   email: string;
   phone: string;
   city: string;
+  district: string;
   address: string;
   notes: string;
   status: "new" | "contacted" | "rejected" | "purchased";

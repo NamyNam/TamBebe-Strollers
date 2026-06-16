@@ -8,6 +8,7 @@ import {
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import { useSellStore } from "@/contexts/SellStore";
+import { PROVINCES, getDistricts } from "@/data/turkey";
 
 async function fileToBase64(file: File): Promise<string> {
   return new Promise((res, rej) => {
@@ -84,7 +85,7 @@ function Section({ icon: Icon, title, accent, children }: {
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
           style={{ backgroundColor: accent + "22" }}>
-          <Icon className="w-4.5 h-4.5" style={{ color: accent }} />
+          <Icon className="w-5 h-5" style={{ color: accent }} />
         </div>
         <h2 className="text-lg font-black">{title}</h2>
       </div>
@@ -99,7 +100,7 @@ export default function SellForm() {
   const { addRequest } = useSellStore();
   const [submitted, setSubmitted] = useState(false);
 
-  const [photos, setPhotos] = useState<(string | null)[]>([null, null, null, null]);
+  const [photos, setPhotos] = useState<(string | null)[]>(Array(8).fill(null));
   const [hasInvoice, setHasInvoice] = useState("");
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
@@ -113,6 +114,7 @@ export default function SellForm() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
+  const [district, setDistrict] = useState("");
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
@@ -136,7 +138,8 @@ export default function SellForm() {
     if (!allFunctionsWorking) e.allFunctionsWorking = "Lütfen seçin.";
     if (!email.trim() || !email.includes("@")) e.email = "Geçerli e-posta adresi giriniz.";
     if (!phone.trim()) e.phone = "Telefon numarası zorunludur.";
-    if (!city.trim()) e.city = "Şehir zorunludur.";
+    if (!city.trim()) e.city = "İl seçiniz.";
+    if (!district.trim()) e.district = "İlçe seçiniz.";
     if (!address.trim()) e.address = "Adres zorunludur.";
     setErrors(e);
     if (Object.keys(e).length > 0) {
@@ -165,6 +168,7 @@ export default function SellForm() {
       email: email.trim(),
       phone: phone.trim(),
       city: city.trim(),
+      district: district.trim(),
       address: address.trim(),
       notes: notes.trim(),
     });
@@ -269,7 +273,7 @@ export default function SellForm() {
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
               <span className={`font-black ${filledPhotos.length >= 2 ? "text-green-600" : "text-[#f6ab78]"}`}>
-                {filledPhotos.length}/4
+                {filledPhotos.length}/8
               </span>
               fotoğraf yüklendi {filledPhotos.length >= 2 && <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />}
             </div>
@@ -384,14 +388,27 @@ export default function SellForm() {
                 {errMsg("phone")}
               </div>
               <div id="field-city">
-                <label className="field-label">Şehir *</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <input className={`field pl-9 ${errors.city ? "border-red-400" : ""}`} value={city}
-                    placeholder="İstanbul"
-                    onChange={e => { setCity(e.target.value); setErrors(p => ({ ...p, city: "" })); }} />
-                </div>
+                <label className="field-label">İl *</label>
+                <select className={`field ${errors.city ? "border-red-400" : ""}`} value={city}
+                  onChange={e => {
+                    setCity(e.target.value);
+                    setDistrict("");
+                    setErrors(p => ({ ...p, city: "", district: "" }));
+                  }}>
+                  <option value="">İl seçin…</option>
+                  {PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
                 {errMsg("city")}
+              </div>
+              <div id="field-district">
+                <label className="field-label">İlçe *</label>
+                <select className={`field ${errors.district ? "border-red-400" : ""}`} value={district}
+                  disabled={!city}
+                  onChange={e => { setDistrict(e.target.value); setErrors(p => ({ ...p, district: "" })); }}>
+                  <option value="">{city ? "İlçe seçin…" : "Önce il seçin"}</option>
+                  {getDistricts(city).map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+                {errMsg("district")}
               </div>
               <div id="field-address" className="col-span-2">
                 <label className="field-label">Adres *</label>
