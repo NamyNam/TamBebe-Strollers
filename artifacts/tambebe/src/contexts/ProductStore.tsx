@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useCallback, ReactNode, useMemo } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode, useMemo, useEffect } from "react";
+import { sbGet, sbUpsert } from "@/lib/supabase";
 import { products as staticProducts } from "@/data/products";
 import type { Product, ProductVariant, ConditionGrade, FlatVariant } from "@/data/products";
 import stroller1 from "@/assets/images/stroller-1.png";
@@ -91,13 +92,17 @@ function loadStore(): StoreData {
 }
 
 function saveStore(data: StoreData): boolean {
+  // 1. localStorage (sync, instant)
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    return true;
   } catch {
     window.dispatchEvent(new CustomEvent("tambebe:storage-full"));
-    return false;
   }
+  // 2. Supabase (async, fire-and-forget)
+  sbUpsert("admin_store", { id: "singleton", data, updated_at: new Date().toISOString() }).catch(
+    (e) => console.warn("[supabase] admin_store save failed:", e)
+  );
+  return true;
 }
 
 function mergeProducts(storeData: StoreData): Product[] {
@@ -200,6 +205,24 @@ const ProductStoreContext = createContext<ProductStoreValue | null>(null);
 
 export function ProductStoreProvider({ children }: { children: ReactNode }) {
   const [storeData, setStoreData] = useState<StoreData>(loadStore);
+
+  // Supabase'den yükle (sayfa açılışında)
+  useEffect(() => {
+    sbGet<{ data: Partial<StoreData> }>("admin_store", "?id=eq.singleton&select=data")
+      .then((rows) => {
+        const raw = rows[0]?.data;
+        if (!raw) return;
+        const normalized: StoreData = {
+          variantOverrides: raw.variantOverrides ?? {},
+          extraVariants:    raw.extraVariants    ?? [],
+          extraProducts:    raw.extraProducts    ?? [],
+          hiddenVariants:   raw.hiddenVariants   ?? [],
+        };
+        setStoreData(normalized);
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized)); } catch {}
+      })
+      .catch((e) => console.warn("[supabase] admin_store load failed:", e));
+  }, []);
 
   const products = useMemo(() => mergeProducts(storeData), [storeData]);
 
