@@ -71,6 +71,8 @@ interface StoreData {
   extraProducts: ExtraProduct[];
   /** IDs of original (static) variants the admin has hidden */
   hiddenVariants: string[];
+  /** Slugs of static products the admin has hidden (whole model removed from site) */
+  hiddenProducts: string[];
 }
 
 const STORAGE_KEY = "tambebe_admin_store";
@@ -85,10 +87,11 @@ function loadStore(): StoreData {
         extraVariants: parsed.extraVariants ?? [],
         extraProducts: parsed.extraProducts ?? [],
         hiddenVariants: parsed.hiddenVariants ?? [],
+        hiddenProducts: parsed.hiddenProducts ?? [],
       };
     }
   } catch {}
-  return { variantOverrides: {}, extraVariants: [], extraProducts: [], hiddenVariants: [] };
+  return { variantOverrides: {}, extraVariants: [], extraProducts: [], hiddenVariants: [], hiddenProducts: [] };
 }
 
 function saveStore(data: StoreData): boolean {
@@ -107,9 +110,10 @@ function saveStore(data: StoreData): boolean {
 
 function mergeProducts(storeData: StoreData): Product[] {
   const hidden = new Set(storeData.hiddenVariants);
+  const hiddenProds = new Set(storeData.hiddenProducts);
 
-  // 1. Static products with overrides applied, hidden variants removed
-  const base: Product[] = staticProducts.map((p) => ({
+  // 1. Static products with overrides applied, hidden variants removed, hidden products excluded
+  const base: Product[] = staticProducts.filter((p) => !hiddenProds.has(p.slug)).map((p) => ({
     ...p,
     variants: p.variants
       .filter((v) => !hidden.has(v.id))
@@ -196,6 +200,8 @@ interface ProductStoreValue {
   deleteExtraVariant: (variantId: string) => void;
   hideVariant: (variantId: string) => void;
   unhideVariant: (variantId: string) => void;
+  hideProduct: (slug: string) => void;
+  unhideProduct: (slug: string) => void;
   addExtraProduct: (product: ExtraProduct) => void;
   deleteExtraProduct: (slug: string) => void;
   resetAll: () => void;
@@ -217,6 +223,7 @@ export function ProductStoreProvider({ children }: { children: ReactNode }) {
           extraVariants:    raw.extraVariants    ?? [],
           extraProducts:    raw.extraProducts    ?? [],
           hiddenVariants:   raw.hiddenVariants   ?? [],
+          hiddenProducts:   raw.hiddenProducts   ?? [],
         };
         setStoreData(normalized);
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized)); } catch {}
@@ -300,6 +307,23 @@ export function ProductStoreProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const hideProduct = useCallback((slug: string) => {
+    setStoreData((prev) => {
+      if (prev.hiddenProducts.includes(slug)) return prev;
+      const next: StoreData = { ...prev, hiddenProducts: [...prev.hiddenProducts, slug] };
+      saveStore(next);
+      return next;
+    });
+  }, []);
+
+  const unhideProduct = useCallback((slug: string) => {
+    setStoreData((prev) => {
+      const next: StoreData = { ...prev, hiddenProducts: prev.hiddenProducts.filter((s) => s !== slug) };
+      saveStore(next);
+      return next;
+    });
+  }, []);
+
   const addExtraProduct = useCallback((product: ExtraProduct) => {
     setStoreData((prev) => {
       const existingSlugs = new Set([
@@ -333,6 +357,7 @@ export function ProductStoreProvider({ children }: { children: ReactNode }) {
       extraVariants: [],
       extraProducts: [],
       hiddenVariants: [],
+      hiddenProducts: [],
     };
     saveStore(empty);
     setStoreData(empty);
@@ -350,6 +375,8 @@ export function ProductStoreProvider({ children }: { children: ReactNode }) {
         deleteExtraVariant,
         hideVariant,
         unhideVariant,
+        hideProduct,
+        unhideProduct,
         addExtraProduct,
         deleteExtraProduct,
         resetAll,
