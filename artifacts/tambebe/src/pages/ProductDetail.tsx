@@ -160,7 +160,7 @@ export default function ProductDetail() {
         <div className="container mx-auto px-4 md:px-6 py-6 md:py-10">
           <div className="grid md:grid-cols-2 gap-8 lg:gap-14">
             {/* Ürün galerisi */}
-            <div className="sticky top-20 space-y-3">
+            <div className="md:sticky md:top-20 space-y-3">
               {/* Ana resim */}
               <div className="rounded-3xl bg-gray-50 border border-border overflow-hidden aspect-square flex items-center justify-center p-8 relative">
                 <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
