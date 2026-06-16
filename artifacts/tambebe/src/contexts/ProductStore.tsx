@@ -90,11 +90,13 @@ function loadStore(): StoreData {
   return { variantOverrides: {}, extraVariants: [], extraProducts: [], hiddenVariants: [] };
 }
 
-function saveStore(data: StoreData) {
+function saveStore(data: StoreData): boolean {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (e) {
-    console.warn("localStorage quota exceeded — images may be too large", e);
+    return true;
+  } catch {
+    window.dispatchEvent(new CustomEvent("tambebe:storage-full"));
+    return false;
   }
 }
 

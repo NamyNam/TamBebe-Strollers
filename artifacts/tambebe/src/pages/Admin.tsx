@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,12 +25,27 @@ function slugify(s: string) {
 function genId() {
   return `v${Date.now()}${Math.random().toString(36).slice(2, 7)}`;
 }
-async function fileToBase64(file: File): Promise<string> {
+/** Resizes & compresses an image file to at most 900×900 px at 75% JPEG quality */
+async function compressImage(file: File, maxPx = 900, quality = 0.75): Promise<string> {
   return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onloadend = () => res(r.result as string);
-    r.onerror = rej;
-    r.readAsDataURL(file);
+    const reader = new FileReader();
+    reader.onerror = rej;
+    reader.onloadend = () => {
+      const img = new Image();
+      img.onerror = rej;
+      img.onload = () => {
+        const ratio = Math.min(1, maxPx / Math.max(img.width, img.height));
+        const w = Math.round(img.width * ratio);
+        const h = Math.round(img.height * ratio);
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
+        res(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
   });
 }
 
@@ -45,8 +60,8 @@ function MultiImagePicker({ values, onChange }: { values: string[]; onChange: (v
     if (!files.length) return;
     setBusy(true);
     try {
-      const b64s = await Promise.all(files.map(fileToBase64));
-      onChange([...values, ...b64s]);
+      const compressed = await Promise.all(files.map((f) => compressImage(f)));
+      onChange([...values, ...compressed]);
     } finally { setBusy(false); e.target.value = ""; setAdding(false); }
   }
 
@@ -173,12 +188,15 @@ function PasswordGate({ onAuth }: { onAuth: () => void }) {
 }
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
-function Toast({ msg, onDone }: { msg: string; onDone: () => void }) {
+function Toast({ msg, onDone, variant = "success" }: { msg: string; onDone: () => void; variant?: "success" | "error" }) {
   return createPortal(
     <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }}
-      onAnimationComplete={() => setTimeout(onDone, 2000)}
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2 bg-gray-900 text-white text-sm font-semibold px-5 py-3 rounded-full shadow-xl whitespace-nowrap">
-      <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />{msg}
+      onAnimationComplete={() => setTimeout(onDone, variant === "error" ? 4000 : 2000)}
+      className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2 text-white text-sm font-semibold px-5 py-3 rounded-full shadow-xl max-w-[90vw] text-center ${variant === "error" ? "bg-red-600" : "bg-gray-900"}`}>
+      {variant === "error"
+        ? <AlertTriangle className="w-4 h-4 text-yellow-300 shrink-0" />
+        : <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />}
+      {msg}
     </motion.div>,
     document.body
   );
@@ -821,7 +839,7 @@ export default function Admin() {
   const [tab, setTab] = useState<"stock" | "sell">("stock");
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ msg: string; variant: "success" | "error" } | null>(null);
 
   const { products, storeData, addExtraProduct, deleteExtraProduct, resetAll } = useProductStore();
   const { requests, updateStatus, deleteRequest } = useSellStore();
@@ -836,7 +854,18 @@ export default function Admin() {
     return { total: all.length, inStock: all.filter(v => v.stock > 0).length, overrides };
   }, [products, storeData]);
 
-  function showToast(msg: string) { setToast(null); setTimeout(() => setToast(msg), 30); }
+  function showToast(msg: string, variant: "success" | "error" = "success") {
+    setToast(null);
+    setTimeout(() => setToast({ msg, variant }), 30);
+  }
+
+  useEffect(() => {
+    function onFull() {
+      showToast("Depolama doldu! Resimler kaydedilemedi. Lütfen mevcut ürünleri silin veya daha az/küçük resim kullanın.", "error");
+    }
+    window.addEventListener("tambebe:storage-full", onFull);
+    return () => window.removeEventListener("tambebe:storage-full", onFull);
+  }, []);
 
   if (!authed) return <PasswordGate onAuth={() => setAuthed(true)} />;
 
@@ -1004,7 +1033,7 @@ export default function Admin() {
       )}
 
       <AnimatePresence>
-        {toast && <Toast key={toast} msg={toast} onDone={() => setToast(null)} />}
+        {toast && <Toast key={toast.msg} msg={toast.msg} variant={toast.variant} onDone={() => setToast(null)} />}
       </AnimatePresence>
     </div>
   );
