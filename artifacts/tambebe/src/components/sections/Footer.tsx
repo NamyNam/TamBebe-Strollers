@@ -6,15 +6,15 @@ export function Footer() {
     <footer className="bg-white border-t border-border pt-12 pb-8">
       <div className="container mx-auto px-4 md:px-6">
 
-        {/* Main row */}
-        <div className="flex flex-col md:flex-row md:items-start gap-10 md:gap-20 mb-10">
+        {/* Main grid — brand takes half, right two cols split the rest */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
 
-          {/* Brand */}
-          <div className="flex-1 max-w-xs">
+          {/* Brand — 2 cols wide */}
+          <div className="md:col-span-2">
             <Link href="/" className="text-xl font-black tracking-tight inline-block mb-3">
               Tam<span style={{ color: "#f6ab78" }}>Bebe</span>.
             </Link>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
               Profesyonelce yenilenmiş, buharla temizlenmiş ve mekanik olarak test edilmiş premium ikinci el bebek arabaları.
             </p>
             <div className="flex items-center gap-3 mt-5">
@@ -33,31 +33,13 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Bize Ulaşın */}
+          {/* Destek */}
           <div>
-            <h4 className="text-sm font-black mb-4 text-foreground">Bize Ulaşın</h4>
-            <ul className="space-y-2.5 text-sm text-muted-foreground">
-              <li>
-                <a href="mailto:info@tambebe.com" className="hover:text-foreground transition-colors">
-                  info@tambebe.com
-                </a>
-              </li>
-              <li>
-                <a href="https://instagram.com/tambebe" target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors">
-                  @tambebe
-                </a>
-              </li>
-              <li>
-                <Link href="/sell" className="hover:text-foreground transition-colors">
-                  Arabanı Sat
-                </Link>
-              </li>
-              <li>
-                <Link href="/process" className="hover:text-foreground transition-colors">
-                  Sürecimiz
-                </Link>
-              </li>
-            </ul>
+            <h4 className="text-sm font-black mb-4 text-foreground">Destek</h4>
+            <a href="mailto:info@tambebe.com"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors">
+              Bize Ulaşın
+            </a>
           </div>
 
           {/* Sözleşmeler */}

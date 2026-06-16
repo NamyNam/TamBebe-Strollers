@@ -4,6 +4,7 @@ import { Menu, X, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 
 const LINKS = [
+  { href: "/",        label: "Ana Sayfa" },
   { href: "/process", label: "Sürecimiz" },
   { href: "/sell",    label: "Arabanı Sat" },
 ];
