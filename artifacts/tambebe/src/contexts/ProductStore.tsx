@@ -43,6 +43,7 @@ export interface ExtraVariant {
   priceNum: number;
   stock: number;
   image: string;
+  images?: string[];
 }
 
 export interface ExtraProduct {
@@ -59,6 +60,7 @@ export interface ExtraProduct {
   included: string[];
   highlights: string[];
   image: string;
+  images?: string[];
   variants: ExtraVariant[];
 }
 

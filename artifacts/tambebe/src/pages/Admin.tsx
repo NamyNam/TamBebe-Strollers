@@ -34,42 +34,95 @@ async function fileToBase64(file: File): Promise<string> {
   });
 }
 
-// ─── Image Picker ─────────────────────────────────────────────────────────────
-function ImagePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+// ─── Multi Image Picker ────────────────────────────────────────────────────────
+function MultiImagePicker({ values, onChange }: { values: string[]; onChange: (v: string[]) => void }) {
   const ref = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
-  const isCustom = value.startsWith("data:") || value.startsWith("http");
+  const [adding, setAdding] = useState(false);
 
-  async function pick(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    if (!f) return;
+  async function upload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
     setBusy(true);
-    try { onChange(await fileToBase64(f)); } finally { setBusy(false); e.target.value = ""; }
+    try {
+      const b64s = await Promise.all(files.map(fileToBase64));
+      onChange([...values, ...b64s]);
+    } finally { setBusy(false); e.target.value = ""; setAdding(false); }
+  }
+
+  function addPreset(key: string) {
+    if (!values.includes(key)) onChange([...values, key]);
+    setAdding(false);
+  }
+
+  function remove(idx: number) {
+    onChange(values.filter((_, i) => i !== idx));
+  }
+
+  function moveFirst(idx: number) {
+    if (idx === 0) return;
+    const next = [...values];
+    const [item] = next.splice(idx, 1);
+    next.unshift(item);
+    onChange(next);
   }
 
   return (
-    <div className="space-y-1.5">
-      <div className="flex gap-1.5">
-        {IMAGE_OPTIONS.map(o => (
-          <button key={o.key} type="button" onClick={() => onChange(o.key)}
-            className={`flex-1 rounded-lg border-2 overflow-hidden transition-all ${value === o.key ? "border-[#65a6db]" : "border-border hover:border-gray-300"}`}>
-            <img src={o.src} alt="" className="w-full h-12 object-contain p-1 bg-gray-50" />
-          </button>
+    <div className="space-y-2">
+      {/* Thumbnails row */}
+      <div className="flex flex-wrap gap-2">
+        {values.map((v, idx) => (
+          <div key={`${v}-${idx}`} className="relative group">
+            <div
+              onClick={() => moveFirst(idx)}
+              className={`w-16 h-16 rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${idx === 0 ? "border-[#65a6db] ring-2 ring-[#65a6db]/30" : "border-border hover:border-[#65a6db]/50"}`}>
+              <img src={resolveImage(v)} alt="" className="w-full h-full object-contain bg-gray-50 p-1" />
+            </div>
+            {idx === 0 && (
+              <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 text-[8px] font-black px-1.5 py-0.5 rounded-full text-white whitespace-nowrap" style={{ backgroundColor: "#65a6db" }}>Ana</span>
+            )}
+            <button type="button" onClick={() => remove(idx)}
+              className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <X className="w-2.5 h-2.5" />
+            </button>
+          </div>
         ))}
-        <button type="button" onClick={() => ref.current?.click()}
-          className={`flex-1 rounded-lg border-2 flex flex-col items-center justify-center gap-0.5 transition-all ${isCustom ? "border-[#f6ab78]" : "border-dashed border-gray-300 hover:border-[#f6ab78]"}`}>
-          {isCustom
-            ? <img src={resolveImage(value)} alt="" className="w-full h-12 object-contain p-1" />
-            : <><ImagePlus className="w-4 h-4 text-muted-foreground" /><span className="text-[9px] font-bold text-muted-foreground">Yükle</span></>}
+
+        {/* Add button */}
+        <button type="button" onClick={() => setAdding(a => !a)}
+          className={`w-16 h-16 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-0.5 transition-all ${adding ? "border-[#f6ab78] bg-orange-50" : "border-gray-300 hover:border-[#f6ab78]"}`}>
+          <ImagePlus className="w-4 h-4 text-muted-foreground" />
+          <span className="text-[8px] font-bold text-muted-foreground">Ekle</span>
         </button>
       </div>
-      <input ref={ref} type="file" accept="image/*" className="hidden" onChange={pick} />
+
+      {/* Inline add panel */}
+      {adding && (
+        <div className="p-3 rounded-xl border border-border bg-gray-50 space-y-2">
+          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Hazır Görseller</p>
+          <div className="flex gap-1.5">
+            {IMAGE_OPTIONS.map(o => (
+              <button key={o.key} type="button" onClick={() => addPreset(o.key)}
+                className={`flex-1 rounded-lg border-2 overflow-hidden transition-all ${values.includes(o.key) ? "border-[#65a6db] opacity-50" : "border-border hover:border-[#65a6db]"}`}>
+                <img src={o.src} alt="" className="w-full h-10 object-contain p-1 bg-white" />
+              </button>
+            ))}
+          </div>
+          <button type="button" onClick={() => ref.current?.click()}
+            className="w-full py-2 rounded-lg border-2 border-dashed border-[#f6ab78] text-[11px] font-black flex items-center justify-center gap-1.5 hover:bg-orange-50 transition-colors" style={{ color: "#b8712a" }}>
+            <ImagePlus className="w-3.5 h-3.5" /> Bilgisayardan Yükle
+          </button>
+        </div>
+      )}
+
+      <input ref={ref} type="file" accept="image/*" multiple className="hidden" onChange={upload} />
+
       {busy && <p className="text-[10px] text-[#65a6db] font-semibold">Yükleniyor…</p>}
-      {isCustom && (
-        <p className="text-[10px] text-green-600 font-semibold flex items-center gap-1">
-          <CheckCircle2 className="w-3 h-3" /> Kendi görseliniz —{" "}
-          <button type="button" onClick={() => onChange("stroller-1")} className="underline text-muted-foreground">Kaldır</button>
-        </p>
+      {values.length === 0 && (
+        <p className="text-[10px] text-muted-foreground font-semibold">En az 1 görsel ekleyin.</p>
+      )}
+      {values.length > 1 && (
+        <p className="text-[10px] text-muted-foreground font-medium">Bir resme tıklayarak ana resim olarak ayarlayabilirsiniz.</p>
       )}
     </div>
   );
@@ -166,7 +219,7 @@ function InlineAddVariant({ productSlug, addExtraVariant, onDone }: {
   const [year, setYear] = useState(String(new Date().getFullYear()));
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState(1);
-  const [image, setImage] = useState("stroller-1");
+  const [images, setImages] = useState<string[]>(["stroller-1"]);
   const [colorErr, setColorErr] = useState("");
   const [priceErr, setPriceErr] = useState("");
 
@@ -180,6 +233,7 @@ function InlineAddVariant({ productSlug, addExtraVariant, onDone }: {
     else setPriceErr("");
     if (!ok) return;
 
+    const primaryImage = images[0] ?? "stroller-1";
     const newVariant: ExtraVariant = {
       id: genId(),
       productSlug,
@@ -190,9 +244,9 @@ function InlineAddVariant({ productSlug, addExtraVariant, onDone }: {
       price: `€${pNum}`,
       priceNum: pNum,
       stock,
-      image,
+      image: primaryImage,
+      images: images.length > 0 ? images : [primaryImage],
     };
-    console.log("[TamBebe Admin] Varyant kaydediliyor:", newVariant);
     addExtraVariant(newVariant);
     onDone(`"${color.trim()}" varyantı eklendi ✓`);
   }
@@ -237,8 +291,8 @@ function InlineAddVariant({ productSlug, addExtraVariant, onDone }: {
           {priceErr && <p className="text-[11px] text-red-500 font-semibold mt-0.5">{priceErr}</p>}
         </div>
         <div className="col-span-2">
-          <label className="field-label">Görsel</label>
-          <ImagePicker value={image} onChange={setImage} />
+          <label className="field-label">Görseller</label>
+          <MultiImagePicker values={images} onChange={setImages} />
         </div>
       </div>
       <div className="flex gap-2 pt-1">
@@ -268,13 +322,14 @@ function AddProductModal({ onSave, onClose, existingSlugs }: {
   const [foldType, setFoldType] = useState("");
   const [seatPositions, setSeatPositions] = useState("");
   const [maxChildWeight, setMaxChildWeight] = useState("");
-  const [image, setImage] = useState("stroller-1");
+  const [productImages, setProductImages] = useState<string[]>(["stroller-1"]);
   const [color, setColor] = useState("");
   const [colorHex, setColorHex] = useState("#888888");
   const [condition, setCondition] = useState<ConditionGrade>("Unopened");
   const [year, setYear] = useState(String(new Date().getFullYear()));
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState(1);
+  const [variantImages, setVariantImages] = useState<string[]>(["stroller-1"]);
   const [err, setErr] = useState<Record<string, string>>({});
 
   function save() {
@@ -291,18 +346,23 @@ function AddProductModal({ onSave, onClose, existingSlugs }: {
 
     const slug2 = slugify(`${brand.trim()}-${model.trim()}`);
     const pNum = parseFloat(price.replace(/[^0-9.]/g, ""));
+    const primaryProductImg = productImages[0] ?? "stroller-1";
+    const primaryVariantImg = variantImages[0] ?? "stroller-1";
     onSave({
       slug: slug2, brand: brand.trim(), model: model.trim(),
       retailPrice: retailPrice.trim().startsWith("€") ? retailPrice.trim() : `€${retailPrice.trim()}`,
       description: description.trim(), weight: weight.trim(),
       foldType: foldType.trim(), seatPositions: seatPositions.trim(), maxChildWeight: maxChildWeight.trim(),
       renewalChecks: [], included: [], highlights: [],
-      image,
+      image: primaryProductImg,
+      images: productImages.length > 0 ? productImages : [primaryProductImg],
       variants: [{
         id: genId(), productSlug: slug2,
         color: color.trim(), colorHex, condition,
         year: year || String(new Date().getFullYear()),
-        price: `€${pNum}`, priceNum: pNum, stock, image,
+        price: `€${pNum}`, priceNum: pNum, stock,
+        image: primaryVariantImg,
+        images: variantImages.length > 0 ? variantImages : [primaryVariantImg],
       }],
     });
   }
@@ -355,8 +415,8 @@ function AddProductModal({ onSave, onClose, existingSlugs }: {
             <input className="field" value={maxChildWeight} onChange={e => setMaxChildWeight(e.target.value)} placeholder="22 kg" />
           </div>
           <div className="col-span-2">
-            <label className="field-label">Görsel</label>
-            <ImagePicker value={image} onChange={setImage} />
+            <label className="field-label">Görseller</label>
+            <MultiImagePicker values={productImages} onChange={setProductImages} />
           </div>
         </div>
         <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground pt-1">İlk Varyant</p>
@@ -395,6 +455,10 @@ function AddProductModal({ onSave, onClose, existingSlugs }: {
             <label className="field-label">Stok</label>
             <input type="number" min={0} className="field" value={stock}
               onChange={e => setStock(Math.max(0, Number(e.target.value)))} />
+          </div>
+          <div className="col-span-2">
+            <label className="field-label">Varyant Görselleri</label>
+            <MultiImagePicker values={variantImages} onChange={setVariantImages} />
           </div>
         </div>
         <div className="flex gap-2 pt-2">
