@@ -3,7 +3,7 @@ import { useParams, useSearch, useLocation, Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, ShieldCheck, CheckCircle2, Package,
-  ShoppingCart, Check, AlertTriangle, ChevronDown,
+  ShoppingCart, Check, AlertTriangle, ChevronDown, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { conditionMeta, CONDITION_ORDER } from "@/data/products";
 import type { Product, ProductVariant, ConditionGrade } from "@/data/products";
@@ -132,6 +132,16 @@ export default function ProductDetail() {
   const outOfStock = selectedVariant.stock === 0;
   const inCart = isInCart(selectedVariant.id);
 
+  // Gallery: use variant's images array if available, else single image
+  const galleryImages = useMemo(
+    () => selectedVariant.images?.length ? selectedVariant.images : [selectedVariant.image],
+    [selectedVariant]
+  );
+  const [activeIdx, setActiveIdx] = useState(0);
+  useEffect(() => { setActiveIdx(0); }, [selectedVariant.id]);
+  const canPrev = activeIdx > 0;
+  const canNext = activeIdx < galleryImages.length - 1;
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
@@ -149,10 +159,11 @@ export default function ProductDetail() {
       <main className="flex-1">
         <div className="container mx-auto px-4 md:px-6 py-6 md:py-10">
           <div className="grid md:grid-cols-2 gap-8 lg:gap-14">
-            {/* Ürün resmi */}
-            <motion.div key={selectedVariant.id + "-img"} initial={{ opacity: 0.7 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>
-              <div className="sticky top-20 rounded-3xl bg-gray-50 border border-border overflow-hidden aspect-square flex items-center justify-center p-8 relative">
-                <div className="absolute top-4 left-4 flex items-center gap-2">
+            {/* Ürün galerisi */}
+            <div className="sticky top-20 space-y-3">
+              {/* Ana resim */}
+              <div className="rounded-3xl bg-gray-50 border border-border overflow-hidden aspect-square flex items-center justify-center p-8 relative">
+                <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
                   <span className="inline-flex items-center gap-1 text-xs font-black rounded-full px-2.5 py-1 text-white" style={{ backgroundColor: "#65a6db" }}>
                     <ShieldCheck className="w-3 h-3" /> Sertifikalı
                   </span>
@@ -160,11 +171,51 @@ export default function ProductDetail() {
                     {cm.label}
                   </span>
                 </div>
-                <img src={selectedVariant.image} alt={`${product.brand} ${product.model}`}
-                  className={`w-full h-full object-contain transition-all duration-300 ${outOfStock ? "opacity-40 grayscale" : ""}`}
-                  data-testid="img-product" />
+
+                {/* Önceki / sonraki okları — birden fazla resim varsa */}
+                {galleryImages.length > 1 && (
+                  <>
+                    <button onClick={() => setActiveIdx(i => i - 1)} disabled={!canPrev}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white shadow flex items-center justify-center transition-all hover:shadow-md disabled:opacity-20 disabled:cursor-not-allowed">
+                      <ChevronLeft className="w-4 h-4 text-foreground" />
+                    </button>
+                    <button onClick={() => setActiveIdx(i => i + 1)} disabled={!canNext}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white shadow flex items-center justify-center transition-all hover:shadow-md disabled:opacity-20 disabled:cursor-not-allowed">
+                      <ChevronRight className="w-4 h-4 text-foreground" />
+                    </button>
+                    <span className="absolute bottom-4 right-4 z-10 text-[10px] font-black px-2 py-0.5 rounded-full bg-black/30 text-white">
+                      {activeIdx + 1} / {galleryImages.length}
+                    </span>
+                  </>
+                )}
+
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={`${selectedVariant.id}-${activeIdx}`}
+                    src={galleryImages[activeIdx]}
+                    alt={`${product.brand} ${product.model} — fotoğraf ${activeIdx + 1}`}
+                    initial={{ opacity: 0, scale: 0.97 }}
+                    animate={{ opacity: outOfStock ? 0.4 : 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.97 }}
+                    transition={{ duration: 0.2 }}
+                    className={`w-full h-full object-contain ${outOfStock ? "grayscale" : ""}`}
+                    data-testid="img-product"
+                  />
+                </AnimatePresence>
               </div>
-            </motion.div>
+
+              {/* Küçük thumbnail şeridi */}
+              {galleryImages.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
+                  {galleryImages.map((src, idx) => (
+                    <button key={idx} onClick={() => setActiveIdx(idx)}
+                      className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${idx === activeIdx ? "border-[#65a6db] ring-2 ring-[#65a6db]/20" : "border-border hover:border-gray-400 opacity-60 hover:opacity-100"}`}>
+                      <img src={src} alt="" className="w-full h-full object-contain bg-gray-50 p-1" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Detaylar */}
             <div className="flex flex-col gap-5">

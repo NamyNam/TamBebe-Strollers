@@ -134,6 +134,7 @@ function mergeProducts(storeData: StoreData): Product[] {
         .filter((ev) => !hidden.has(ev.id))
         .map((ev) => {
           const override = storeData.variantOverrides[ev.id];
+          const imgs = ev.images?.length ? ev.images.map(resolveImage) : undefined;
           return {
             id: ev.id,
             color: ev.color,
@@ -144,6 +145,7 @@ function mergeProducts(storeData: StoreData): Product[] {
             priceNum: override?.priceNum ?? ev.priceNum,
             stock: override?.stock ?? ev.stock,
             image: resolveImage(ev.image),
+            ...(imgs ? { images: imgs } : {}),
           };
         }),
     }));
@@ -156,6 +158,7 @@ function mergeProducts(storeData: StoreData): Product[] {
     if (!product) continue;
     if (product.variants.find((v) => v.id === ev.id)) continue;
     const override = storeData.variantOverrides[ev.id];
+    const evImgs = ev.images?.length ? ev.images.map(resolveImage) : undefined;
     product.variants = [
       ...product.variants,
       {
@@ -168,6 +171,7 @@ function mergeProducts(storeData: StoreData): Product[] {
         priceNum: override?.priceNum ?? ev.priceNum,
         stock: override?.stock ?? ev.stock,
         image: resolveImage(ev.image),
+        ...(evImgs ? { images: evImgs } : {}),
       },
     ];
   }

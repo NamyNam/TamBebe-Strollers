@@ -16,6 +16,7 @@ export interface ProductVariant {
   priceNum: number;
   stock: number;
   image: string;
+  images?: string[];
 }
 
 export interface Product {
