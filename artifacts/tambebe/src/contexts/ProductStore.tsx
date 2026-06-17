@@ -158,6 +158,7 @@ function mergeProducts(storeData: StoreData): Product[] {
             priceNum: override?.priceNum ?? ev.priceNum,
             stock: override?.stock ?? ev.stock,
             image: resolveImage(ev.image),
+            conditionNotes: override?.conditionNotes ?? ev.conditionNotes,
             ...(imgs ? { images: imgs } : {}),
           };
         }),
