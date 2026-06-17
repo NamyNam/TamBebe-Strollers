@@ -21,11 +21,11 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-border">
-      <div className="container mx-auto px-4 md:px-6 h-16 flex items-center gap-6">
+      <div className="container mx-auto px-4 md:px-6 h-[72px] flex items-center gap-6">
 
         {/* Logo */}
         <Link href="/" className="shrink-0 mr-auto md:mr-0">
-          <LogoSvg className="h-8 w-auto" />
+          <LogoSvg className="h-7 w-auto" />
         </Link>
 
         {/* Desktop nav — centered */}
