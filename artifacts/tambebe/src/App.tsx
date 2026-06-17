@@ -15,6 +15,7 @@ import Admin from "@/pages/Admin";
 import SellForm from "@/pages/SellForm";
 import Terms from "@/pages/Terms";
 import Privacy from "@/pages/Privacy";
+import Cookies from "@/pages/Cookies";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ function Router() {
       <Route path="/admin" component={Admin} />
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
+      <Route path="/cookies" component={Cookies} />
       <Route component={NotFound} />
     </Switch>
   );
