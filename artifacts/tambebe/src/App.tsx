@@ -13,6 +13,8 @@ import Inventory from "@/pages/Inventory";
 import Process from "@/pages/Process";
 import Admin from "@/pages/Admin";
 import SellForm from "@/pages/SellForm";
+import Terms from "@/pages/Terms";
+import Privacy from "@/pages/Privacy";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +27,8 @@ function Router() {
       <Route path="/sell" component={SellForm} />
       <Route path="/strollers/:slug" component={ProductDetail} />
       <Route path="/admin" component={Admin} />
+      <Route path="/terms" component={Terms} />
+      <Route path="/privacy" component={Privacy} />
       <Route component={NotFound} />
     </Switch>
   );

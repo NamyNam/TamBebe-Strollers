@@ -46,8 +46,8 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-black mb-4 text-foreground">Sözleşmeler</h4>
             <ul className="space-y-2.5 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-foreground transition-colors">Gizlilik Politikası</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Kullanım Şartları</a></li>
+              <li><Link href="/privacy" className="hover:text-foreground transition-colors">Gizlilik Politikası</Link></li>
+              <li><Link href="/terms" className="hover:text-foreground transition-colors">Kullanım Şartları</Link></li>
               <li><a href="#" className="hover:text-foreground transition-colors">Çerez Politikası</a></li>
             </ul>
           </div>
