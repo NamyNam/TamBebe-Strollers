@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { LogoSvg } from "@/components/LogoSvg";
 
 const LINKS = [
   { href: "/",        label: "Ana Sayfa" },
@@ -23,8 +24,8 @@ export function Navbar() {
       <div className="container mx-auto px-4 md:px-6 h-16 flex items-center gap-6">
 
         {/* Logo */}
-        <Link href="/" className="text-xl font-black tracking-tight shrink-0 mr-auto md:mr-0">
-          Tam<span style={{ color: "#f6ab78" }}>Bebe</span>.
+        <Link href="/" className="shrink-0 mr-auto md:mr-0">
+          <LogoSvg className="h-8 w-auto" />
         </Link>
 
         {/* Desktop nav — centered */}

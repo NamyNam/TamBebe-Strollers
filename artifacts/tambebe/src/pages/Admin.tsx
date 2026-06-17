@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
+import { LogoSvg } from "@/components/LogoSvg";
 import {
   ShieldCheck, LogOut, RotateCcw, Plus, Pencil, Trash2,
   Check, X, ChevronDown, ChevronRight, Package, AlertTriangle,
@@ -158,7 +159,7 @@ function PasswordGate({ onAuth }: { onAuth: () => void }) {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-sm mx-4">
         <div className="bg-white rounded-3xl shadow-xl border border-border p-8">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-2xl font-black">Tam<span style={{ color: "#f6ab78" }}>Bebe</span>.</span>
+            <LogoSvg className="h-8 w-auto" />
             <span className="text-xs font-black px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: "#65a6db" }}>Admin</span>
           </div>
           <p className="text-sm text-muted-foreground font-medium mb-6">Devam etmek için şifreyi girin.</p>
@@ -923,7 +924,7 @@ export default function Admin() {
       <header className="sticky top-0 z-40 bg-white border-b border-border shadow-sm">
         <div className="max-w-5xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <Link href="/" className="text-lg font-black">Tam<span style={{ color: "#f6ab78" }}>Bebe</span>.</Link>
+            <Link href="/" className="flex items-center"><LogoSvg className="h-7 w-auto" /></Link>
             <span className="text-xs font-black px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: "#65a6db" }}>Admin</span>
           </div>
           <div className="flex items-center gap-1">
