@@ -31,6 +31,7 @@ interface VariantOverride {
   stock?: number;
   price?: string;
   priceNum?: number;
+  conditionNotes?: string;
 }
 
 export interface ExtraVariant {
@@ -45,6 +46,7 @@ export interface ExtraVariant {
   stock: number;
   image: string;
   images?: string[];
+  conditionNotes?: string;
 }
 
 export interface ExtraProduct {
@@ -182,6 +184,7 @@ function mergeProducts(storeData: StoreData): Product[] {
         priceNum: override?.priceNum ?? ev.priceNum,
         stock: override?.stock ?? ev.stock,
         image: resolveImage(ev.image),
+        conditionNotes: override?.conditionNotes ?? ev.conditionNotes,
         ...(evImgs ? { images: evImgs } : {}),
       },
     ];

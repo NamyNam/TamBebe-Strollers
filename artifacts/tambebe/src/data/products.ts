@@ -17,6 +17,8 @@ export interface ProductVariant {
   stock: number;
   image: string;
   images?: string[];
+  /** Freetext: scratches, problems, damages for this specific unit */
+  conditionNotes?: string;
 }
 
 export interface Product {

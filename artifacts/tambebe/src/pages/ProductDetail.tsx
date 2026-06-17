@@ -118,6 +118,14 @@ export default function ProductDetail() {
     if (v) navigate(`/strollers/${slug}?v=${v.id}`, { replace: true });
   }
 
+  // Gallery: use variant's images array if available, else single image
+  const galleryImages = useMemo(
+    () => selectedVariant ? (selectedVariant.images?.length ? selectedVariant.images : [selectedVariant.image]) : [],
+    [selectedVariant]
+  );
+  const [activeIdx, setActiveIdx] = useState(0);
+  useEffect(() => { setActiveIdx(0); }, [selectedVariant?.id]);
+
   if (!product || !selectedVariant) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
@@ -131,14 +139,6 @@ export default function ProductDetail() {
   const sl = stockLabel(selectedVariant.stock);
   const outOfStock = selectedVariant.stock === 0;
   const inCart = isInCart(selectedVariant.id);
-
-  // Gallery: use variant's images array if available, else single image
-  const galleryImages = useMemo(
-    () => selectedVariant.images?.length ? selectedVariant.images : [selectedVariant.image],
-    [selectedVariant]
-  );
-  const [activeIdx, setActiveIdx] = useState(0);
-  useEffect(() => { setActiveIdx(0); }, [selectedVariant.id]);
   const canPrev = activeIdx > 0;
   const canNext = activeIdx < galleryImages.length - 1;
 
@@ -340,6 +340,16 @@ export default function ProductDetail() {
                   </div>
                 ))}
               </div>
+
+              {/* Bilinen Durumlar */}
+              {selectedVariant.conditionNotes && (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3.5 space-y-1">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 flex items-center gap-1.5">
+                    <AlertTriangle className="w-3 h-3" /> Bilinen Durumlar
+                  </p>
+                  <p className="text-sm font-medium text-amber-900 leading-relaxed whitespace-pre-line">{selectedVariant.conditionNotes}</p>
+                </div>
+              )}
 
               {/* Akordeonlar */}
               <div className="space-y-2">

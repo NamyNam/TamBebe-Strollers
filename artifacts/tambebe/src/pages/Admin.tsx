@@ -496,80 +496,113 @@ function AddProductModal({ onSave, onClose, existingSlugs }: {
 }
 
 // ─── Variant Row ──────────────────────────────────────────────────────────────
-function VariantRow({ variant, isExtra, onUpdateStock, onUpdatePrice, onDelete, onHide, onUnhide }: {
+function VariantRow({ variant, isExtra, onUpdateStock, onUpdatePrice, onUpdateNotes, onDelete, onHide, onUnhide }: {
   variant: ProductVariant; isExtra: boolean;
   onUpdateStock: (s: number) => void; onUpdatePrice: (p: string, pn: number) => void;
+  onUpdateNotes: (n: string) => void;
   onDelete: () => void; onHide: () => void; onUnhide: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [sv, setSv] = useState(String(variant.stock));
   const [pv, setPv] = useState(String(variant.priceNum));
+  const [nv, setNv] = useState(variant.conditionNotes ?? "");
   const cm = conditionMeta[variant.condition];
 
   function save() {
     onUpdateStock(Math.max(0, parseInt(sv) || 0));
     onUpdatePrice(`€${parseFloat(pv) || variant.priceNum}`, parseFloat(pv) || variant.priceNum);
+    onUpdateNotes(nv.trim());
+    setEditing(false);
+  }
+
+  function cancel() {
+    setSv(String(variant.stock));
+    setPv(String(variant.priceNum));
+    setNv(variant.conditionNotes ?? "");
     setEditing(false);
   }
 
   return (
-    <tr className="border-t border-border hover:bg-gray-50/40">
-      <td className="px-3 py-2.5">
-        <span className="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full"
-          style={{ backgroundColor: cm.bg, color: cm.color }}>
-          <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cm.color }} />
-          {cm.label}
-        </span>
-      </td>
-      <td className="px-3 py-2.5">
-        <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full border border-white shadow shrink-0" style={{ backgroundColor: variant.colorHex }} />
-          <span className="text-xs font-medium truncate max-w-[90px]">{variant.color}</span>
-        </div>
-      </td>
-      <td className="px-3 py-2.5 text-xs text-muted-foreground">{variant.year}</td>
-      <td className="px-3 py-2.5">
-        {editing
-          ? <input type="number" min={0} value={sv} onChange={e => setSv(e.target.value)} autoFocus
-              className="w-14 text-xs font-bold border-2 border-[#65a6db] rounded-lg px-2 py-1 outline-none" />
-          : <span className={`text-xs font-black px-2 py-0.5 rounded-full ${variant.stock === 0 ? "bg-red-100 text-red-600" : variant.stock === 1 ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700"}`}>
-              {variant.stock === 0 ? "Yok" : `${variant.stock}`}
-            </span>}
-      </td>
-      <td className="px-3 py-2.5">
-        {editing
-          ? <div className="flex items-center gap-0.5">
-              <span className="text-xs text-muted-foreground">€</span>
-              <input type="number" min={0} value={pv} onChange={e => setPv(e.target.value)}
-                className="w-16 text-xs font-bold border-2 border-[#f6ab78] rounded-lg px-2 py-1 outline-none" />
-            </div>
-          : <span className="text-sm font-black" style={{ color: "#f6ab78" }}>{variant.price}</span>}
-      </td>
-      <td className="px-3 py-2.5">
-        <div className="flex items-center gap-0.5">
-          {editing ? (
-            <>
-              <button onClick={save} className="p-1.5 rounded-lg bg-green-100 text-green-600 hover:bg-green-200"><Check className="w-3.5 h-3.5" /></button>
-              <button onClick={() => { setSv(String(variant.stock)); setPv(String(variant.priceNum)); setEditing(false); }}
-                className="p-1.5 rounded-lg bg-gray-100 text-gray-500"><X className="w-3.5 h-3.5" /></button>
-            </>
-          ) : (
-            <>
-              <button onClick={() => setEditing(true)} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground" title="Düzenle">
-                <Pencil className="w-3.5 h-3.5" />
-              </button>
-              {isExtra
-                ? <button onClick={onDelete} className="p-1.5 rounded-lg hover:bg-red-100 text-muted-foreground hover:text-red-500" title="Sil">
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                : <button onClick={onHide} className="p-1.5 rounded-lg hover:bg-yellow-100 text-muted-foreground hover:text-yellow-600" title="Gizle">
-                    <EyeOff className="w-3.5 h-3.5" />
-                  </button>}
-            </>
+    <>
+      <tr className="border-t border-border hover:bg-gray-50/40">
+        <td className="px-3 py-2.5">
+          <span className="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full"
+            style={{ backgroundColor: cm.bg, color: cm.color }}>
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cm.color }} />
+            {cm.label}
+          </span>
+        </td>
+        <td className="px-3 py-2.5">
+          <div className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-full border border-white shadow shrink-0" style={{ backgroundColor: variant.colorHex }} />
+            <span className="text-xs font-medium truncate max-w-[90px]">{variant.color}</span>
+          </div>
+          {!editing && variant.conditionNotes && (
+            <p className="text-[10px] text-amber-600 font-semibold mt-0.5 truncate max-w-[120px]" title={variant.conditionNotes}>
+              ⚠ {variant.conditionNotes}
+            </p>
           )}
-        </div>
-      </td>
-    </tr>
+        </td>
+        <td className="px-3 py-2.5 text-xs text-muted-foreground">{variant.year}</td>
+        <td className="px-3 py-2.5">
+          {editing
+            ? <input type="number" min={0} value={sv} onChange={e => setSv(e.target.value)} autoFocus
+                className="w-14 text-xs font-bold border-2 border-[#65a6db] rounded-lg px-2 py-1 outline-none" />
+            : <span className={`text-xs font-black px-2 py-0.5 rounded-full ${variant.stock === 0 ? "bg-red-100 text-red-600" : variant.stock === 1 ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700"}`}>
+                {variant.stock === 0 ? "Yok" : `${variant.stock}`}
+              </span>}
+        </td>
+        <td className="px-3 py-2.5">
+          {editing
+            ? <div className="flex items-center gap-0.5">
+                <span className="text-xs text-muted-foreground">€</span>
+                <input type="number" min={0} value={pv} onChange={e => setPv(e.target.value)}
+                  className="w-16 text-xs font-bold border-2 border-[#f6ab78] rounded-lg px-2 py-1 outline-none" />
+              </div>
+            : <span className="text-sm font-black" style={{ color: "#f6ab78" }}>{variant.price}</span>}
+        </td>
+        <td className="px-3 py-2.5">
+          <div className="flex items-center gap-0.5">
+            {editing ? (
+              <>
+                <button onClick={save} className="p-1.5 rounded-lg bg-green-100 text-green-600 hover:bg-green-200"><Check className="w-3.5 h-3.5" /></button>
+                <button onClick={cancel}
+                  className="p-1.5 rounded-lg bg-gray-100 text-gray-500"><X className="w-3.5 h-3.5" /></button>
+              </>
+            ) : (
+              <>
+                <button onClick={() => setEditing(true)} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground" title="Düzenle">
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+                {isExtra
+                  ? <button onClick={onDelete} className="p-1.5 rounded-lg hover:bg-red-100 text-muted-foreground hover:text-red-500" title="Sil">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  : <button onClick={onHide} className="p-1.5 rounded-lg hover:bg-yellow-100 text-muted-foreground hover:text-yellow-600" title="Gizle">
+                      <EyeOff className="w-3.5 h-3.5" />
+                    </button>}
+              </>
+            )}
+          </div>
+        </td>
+      </tr>
+      {editing && (
+        <tr className="bg-amber-50/60 border-t border-amber-100">
+          <td colSpan={6} className="px-3 pb-3 pt-2">
+            <label className="block text-[10px] font-black uppercase tracking-widest text-amber-600 mb-1">
+              Çizik / Hasar / Problem Açıklaması
+            </label>
+            <textarea
+              value={nv}
+              onChange={e => setNv(e.target.value)}
+              rows={3}
+              placeholder="Örn: Sol ön çerçevede küçük çizik, alt sepet fermuarı biraz sert çalışıyor..."
+              className="w-full text-xs font-medium rounded-xl border-2 border-amber-200 focus:border-amber-400 bg-white px-3 py-2 outline-none resize-none placeholder:text-amber-300"
+            />
+          </td>
+        </tr>
+      )}
+    </>
   );
 }
 
@@ -644,6 +677,7 @@ function ProductCard({ product, isExtra, onDelete, onHide, onToast }: {
                   <VariantRow key={v.id} variant={v} isExtra={extraIds.has(v.id)}
                     onUpdateStock={s => updateVariant(v.id, { stock: s })}
                     onUpdatePrice={(p, pn) => updateVariant(v.id, { price: p, priceNum: pn })}
+                    onUpdateNotes={n => updateVariant(v.id, { conditionNotes: n || undefined })}
                     onDelete={() => { deleteExtraVariant(v.id); onToast("Varyant silindi."); }}
                     onHide={() => { hideVariant(v.id); onToast("Varyant gizlendi."); }}
                     onUnhide={() => unhideVariant(v.id)}
@@ -906,8 +940,8 @@ export default function Admin() {
         {/* Tabs */}
         <div className="flex gap-1 bg-white rounded-2xl border border-border p-1 w-fit">
           {([
-            { key: "stock", label: "Stok Yönetimi", icon: Package },
-            { key: "sell",  label: "Satış Talepleri", icon: Inbox, badge: newSellCount },
+            { key: "stock", label: "Stok Yönetimi", icon: Package, badge: undefined as number | undefined },
+            { key: "sell",  label: "Satış Talepleri", icon: Inbox, badge: newSellCount as number | undefined },
           ] as const).map(({ key, label, icon: Icon, badge }) => (
             <button key={key} onClick={() => setTab(key)}
               className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all ${tab === key ? "text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
